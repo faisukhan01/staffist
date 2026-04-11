@@ -70,6 +70,16 @@ const fadeUp = (delay = 0) => ({
   visible: { opacity: 1, y: 0, transition: { delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] as const } },
 });
 
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+
+const cardSpring = {
+  hidden:  { opacity: 0, y: 24, scale: 0.97 },
+  visible: { opacity: 1, y: 0,  scale: 1,    transition: { type: 'spring' as const, stiffness: 260, damping: 22 } },
+};
+
 /* ── Component ── */
 export default function ComplianceContent() {
   const { setSidebarOpen } = useAppStore();
@@ -133,22 +143,6 @@ export default function ComplianceContent() {
           </div>
         </motion.div>
 
-        {/* Alert */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp(0.06)}>
-          <div className="flex items-start gap-3 px-4 md:px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-amber-900">Action Required</p>
-              <p className="text-sm text-amber-700 mt-0.5">Your NMC Registration renewal is due in 45 days. Upload your renewal documents to stay compliant.</p>
-            </div>
-            <button className="shrink-0 text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors">
-              Upload Now
-            </button>
-          </div>
-        </motion.div>
-
         {/* Documents Grid */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp(0.1)}>
           <div className="flex items-center justify-between mb-4">
@@ -157,13 +151,15 @@ export default function ComplianceContent() {
               Upload Guidelines <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-4" variants={container} initial="hidden" animate="visible">
             {documents.map((doc, i) => {
               const cfg = sevCfg[doc.severity];
               const Icon = cfg.icon;
               return (
-                <motion.div key={i} initial="hidden" animate="visible" variants={fadeUp(0.1 + i * 0.04)}
-                  className={`bg-white rounded-xl border p-5 hover:shadow-md transition-shadow ${doc.severity === 'urgent' ? 'border-red-200' : doc.severity === 'warning' ? 'border-amber-200' : 'border-slate-200'}`}>
+                <motion.div key={i}
+                  variants={cardSpring}
+                  whileHover={{ y: -4, boxShadow: doc.severity === 'safe' ? '0 12px 32px rgba(0,0,0,0.09)' : '0 12px 32px rgba(245,158,11,0.15)', transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                  className={`group relative bg-white rounded-xl border p-5 cursor-default overflow-hidden ${doc.severity === 'urgent' ? 'border-red-200' : doc.severity === 'warning' ? 'border-amber-200' : 'border-slate-200'}`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className={`w-9 h-9 ${cfg.bg} rounded-xl flex items-center justify-center`}>
                       <Icon className={`w-4.5 h-4.5 ${cfg.text}`} style={{ width: 18, height: 18 }} />
@@ -175,10 +171,11 @@ export default function ComplianceContent() {
                   <button className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2 rounded-lg transition-colors">
                     <Upload className="w-3.5 h-3.5" />{doc.action}
                   </button>
+                  <div className={`absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r scale-x-100 md:scale-x-0 md:group-hover:scale-x-100 transition-transform duration-300 origin-left ${doc.severity === 'safe' ? 'from-emerald-400 to-teal-400' : doc.severity === 'warning' ? 'from-amber-400 to-orange-400' : doc.severity === 'urgent' ? 'from-red-400 to-rose-400' : 'from-blue-400 to-indigo-400'}`} />
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Expiry Timeline */}
@@ -218,17 +215,20 @@ export default function ComplianceContent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3" variants={container} initial="hidden" animate="visible">
             {timeline.map((t, i) => {
               const cfg = sevCfg[t.severity];
               return (
-                <div key={i} className="bg-slate-50 rounded-xl p-3.5">
+                <motion.div key={i}
+                  variants={cardSpring}
+                  whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.08)', transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                  className="bg-slate-50 rounded-xl p-3.5 cursor-default">
                   <p className="text-sm font-semibold text-slate-800">{t.title}</p>
                   <p className={`text-xs font-medium mt-1 ${cfg.text}`}>{t.label}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Additional Certifications */}
@@ -239,10 +239,12 @@ export default function ComplianceContent() {
               Add Certificate <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+          <motion.div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100" variants={container} initial="hidden" animate="visible">
             {additionalCerts.map((cert, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}
-                className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+              <motion.div key={i}
+                variants={cardSpring}
+                whileHover={{ backgroundColor: 'rgb(248 250 252)', x: 4, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                className="px-6 py-4 flex items-center justify-between cursor-default">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
                     <cert.icon className="w-5 h-5 text-blue-600" />
@@ -262,7 +264,7 @@ export default function ComplianceContent() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Shield footer note */}

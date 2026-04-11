@@ -72,6 +72,16 @@ const statusCfg: Record<string, { bg: string; text: string; border: string; dot:
 const distanceOptions = ['Within 5 miles', 'Within 10 miles', 'Within 20 miles', 'Any distance'];
 const sortOptions     = ['Nearest first', 'Highest pay', 'Soonest date'];
 
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+};
+
+const cardSpring = {
+  hidden:  { opacity: 0, y: 24, scale: 0.97 },
+  visible: { opacity: 1, y: 0,  scale: 1,    transition: { type: 'spring' as const, stiffness: 260, damping: 22 } },
+};
+
 export default function MyShiftsContent() {
   const [tab, setTab]                   = useState<Tab>('available');
   const [location, setLocation]         = useState('');
@@ -135,13 +145,17 @@ export default function MyShiftsContent() {
             { label:'Hours',    value:tab === 'upcoming' ? `${UPCOMING.length * 12}h` : `${PAST.length * 12}h`, sub:'total',                                icon:Clock,        color:'text-indigo-600',  bg:'bg-indigo-50'  },
             { label:'Earnings', value:tab === 'upcoming' ? '£1,692' : '£315',                                   sub:'estimated',                            icon:Banknote,     color:'text-emerald-600', bg:'bg-emerald-50' },
           ]).map((s, i) => (
-            <div key={i} className="bg-white rounded-xl border border-slate-200 p-3 md:p-5 hover:shadow-md transition-shadow">
+            <motion.div key={i}
+              variants={cardSpring}
+              whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.09)', transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+              className="group relative bg-white rounded-xl border border-slate-200 p-3 md:p-5 overflow-hidden cursor-default">
               <div className={`w-8 h-8 md:w-10 md:h-10 ${s.bg} rounded-xl flex items-center justify-center mb-2 md:mb-3`}>
                 <s.icon className={`w-4 h-4 md:w-5 md:h-5 ${s.color}`} />
               </div>
               <p className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-none">{s.value}</p>
               <p className="text-xs text-slate-500 mt-0.5 leading-tight">{s.sub}</p>
-            </div>
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 to-indigo-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            </motion.div>
           ))}
         </motion.div>
 
@@ -283,19 +297,18 @@ export default function MyShiftsContent() {
             </div>
 
             {/* Shift Cards — single col on mobile, 2-col on md+ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              {filtered.map((shift, i) => {
+            <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4" variants={container} initial="hidden" animate="visible">
+              {filtered.map((shift) => {
                 const elig = eligCfg[shift.eligibility];
                 const EligIcon = elig.icon;
                 const ShiftIcon = shiftIconMap[shift.shiftType];
                 const shiftColor = shiftColorMap[shift.shiftType];
                 return (
                   <motion.div key={shift.id}
-                    initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*0.05, duration:0.25 }}
-                    className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                    variants={cardSpring}
+                    whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(0,0,0,0.09)', transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                    className="group relative bg-white rounded-xl border border-slate-200 overflow-hidden cursor-default"
                   >
-                    {/* top accent bar */}
-                    <div className={`h-[3px] w-full ${shift.eligibility === 'eligible' ? 'bg-gradient-to-r from-blue-500 to-blue-400' : shift.eligibility === 'restricted' ? 'bg-gradient-to-r from-red-400 to-red-300' : 'bg-gradient-to-r from-amber-400 to-amber-300'}`} />
                     <div className="p-4 md:p-5">
 
                       {/* Hospital + eligibility badge */}
@@ -362,10 +375,12 @@ export default function MyShiftsContent() {
                         </Button>
                       )}
                     </div>
+                    {/* bottom sweep line on hover */}
+                    <div className={`absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left ${shift.eligibility === 'eligible' ? 'from-blue-500 to-indigo-500' : shift.eligibility === 'restricted' ? 'from-red-400 to-rose-400' : 'from-amber-400 to-orange-400'}`} />
                   </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
 
             <div className="flex justify-center pb-4">
               <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 hover:shadow-sm transition-all">
@@ -380,14 +395,15 @@ export default function MyShiftsContent() {
           <AnimatePresence mode="wait">
             <motion.div key={tab} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }} transition={{ duration:0.2 }}>
               {filteredMy.length > 0 ? (
-                <div className="space-y-3">
-                  {filteredMy.map((s, i) => {
+                <motion.div className="space-y-3" variants={container} initial="hidden" animate="visible">
+                  {filteredMy.map((s) => {
                     const st = statusCfg[s.status];
                     const isNight = s.shiftType.toLowerCase().includes('night');
                     return (
                       <motion.div key={s.id}
-                        initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*0.05, duration:0.2 }}
-                        className="bg-white rounded-xl border border-slate-200 p-4 md:p-5 hover:shadow-md hover:border-slate-300 transition-all duration-200 group"
+                        variants={cardSpring}
+                        whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(37,99,235,0.10)', transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                        className="bg-white rounded-xl border border-slate-200 p-4 md:p-5 cursor-default group"
                       >
                         {/* Top row: icon + hospital + status + rate */}
                         <div className="flex items-start gap-3">
@@ -444,7 +460,7 @@ export default function MyShiftsContent() {
                       </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-slate-200">
                   <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-200">

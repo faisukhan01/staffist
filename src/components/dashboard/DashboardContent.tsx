@@ -117,26 +117,6 @@ export default function DashboardContent() {
           </div>
         </motion.div>
 
-        {/* Alert Banner */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp(0.06)}>
-          <div className="flex items-start gap-3 px-4 md:px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <motion.div
-              animate={{ scale: [1, 1.15, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-            >
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-            </motion.div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-amber-900">Action Required</p>
-              <p className="text-sm text-amber-700 mt-0.5">Your visa expires in 32 days. Renew it now to keep receiving shift opportunities.</p>
-            </div>
-            <button className="shrink-0 text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors">
-              Renew Now
-            </button>
-          </div>
-        </motion.div>
-
         {/* Compliance Status */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp(0.14)}>
           <div className="flex items-center justify-between mb-4">
