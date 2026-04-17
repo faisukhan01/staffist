@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
 
 import Navbar from '@/components/landing/Navbar';
@@ -29,35 +30,41 @@ const contentVariants = {
 };
 
 export default function Home() {
-  const { currentPage, sidebarTab, isAuthenticated, navigateTo } = useAppStore();
+  const { currentPage, sidebarTab, isAuthenticated, authRole, navigateTo } = useAppStore();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
-  // Rehydrate zustand persist store and mark as mounted
   useEffect(() => {
-    useAppStore.persist.rehydrate();
     setMounted(true);
   }, []);
 
-  // Guard: run once on mount to enforce rules without calling setState during render
+  // If admin is authenticated, redirect them to /admin immediately
   useEffect(() => {
     if (!mounted) return;
+    if (isAuthenticated && authRole === 'admin') {
+      router.replace('/admin');
+    }
+  }, [mounted, isAuthenticated, authRole, router]);
+
+  // Guard unauthenticated access to protected pages
+  useEffect(() => {
+    if (!mounted) return;
+    if (isAuthenticated && authRole === 'admin') return; // handled above
     const validPages = ['landing', 'signin', 'dashboard', 'compliance'];
     if (!validPages.includes(currentPage)) {
       navigateTo('landing');
       return;
     }
-    // Unauthenticated users cannot access dashboard/compliance pages
     if (!isAuthenticated && currentPage !== 'landing' && currentPage !== 'signin') {
       navigateTo('landing');
     }
-  }, [mounted]);
+  }, [mounted, isAuthenticated, authRole, currentPage]);
 
-  // Scroll to top whenever the page changes
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   }, [currentPage]);
 
-  // Render landing page shell on server / before hydration to avoid mismatch
+  // Prevent flash before hydration
   if (!mounted) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -73,7 +80,11 @@ export default function Home() {
     );
   }
 
-  // Derive what to show synchronously
+  // Admin users should never see the user side — show blank while redirecting
+  if (isAuthenticated && authRole === 'admin') {
+    return null;
+  }
+
   const validPages = ['landing', 'signin', 'dashboard', 'compliance'];
   const safePage = !validPages.includes(currentPage)
     ? 'landing'
@@ -104,7 +115,7 @@ export default function Home() {
         </motion.div>
       )}
 
-      {/* ── App Shell (Dashboard / Shifts / Compliance) ── */}
+      {/* ── User App Shell (Dashboard / Shifts / Compliance) ── */}
       {(safePage === 'dashboard' || safePage === 'compliance') && (
         <motion.div key="app" variants={pageVariants} initial="initial" animate="animate" exit="exit" className="flex min-h-screen">
           <Sidebar />

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { AuthInput, SocialLoginButtons, Divider } from './AuthShared';
 
 interface SignInFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (role: 'user' | 'admin') => void;
   onRoleChange?: (role: 'user' | 'admin') => void;
   role: 'user' | 'admin';
 }
@@ -36,8 +36,9 @@ export default function SignInForm({ onSuccess, onRoleChange, role }: SignInForm
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    const submittedRole = role; // capture role at submit time
     setIsLoading(true);
-    setTimeout(() => { setIsLoading(false); onSuccess?.(); }, 1500);
+    setTimeout(() => { setIsLoading(false); onSuccess?.(submittedRole); }, 1500);
   };
 
   const handleRoleSwitch = (r: Role) => {

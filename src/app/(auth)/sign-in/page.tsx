@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useAppStore } from '@/store/useAppStore';
 import AuthCoverPanel from '@/components/auth/AuthCoverPanel';
@@ -20,9 +20,13 @@ export default function SignInPage() {
     document.body.scrollTop = 0;
   }, []);
 
-  const handleSuccess = () => {
-    signIn();
-    router.push('/');
+  const handleSuccess = (submittedRole: 'user' | 'admin') => {
+    signIn(submittedRole);
+    if (submittedRole === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/');
+    }
   };
 
   return (

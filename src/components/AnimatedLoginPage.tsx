@@ -649,6 +649,7 @@ export default function AnimatedLoginPage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [loginRole, setLoginRole] = useState<'user' | 'admin'>('user');
   const { signIn } = useAppStore();
+  const loginRoleRef = useRef<'user' | 'admin'>('user');
   const frontRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
 
@@ -663,6 +664,20 @@ export default function AnimatedLoginPage() {
       return next;
     });
   }, []);
+
+  const handleRoleChange = useCallback((r: 'user' | 'admin') => {
+    setLoginRole(r);
+    loginRoleRef.current = r;
+  }, []);
+
+  const handleSignIn = useCallback(() => {
+    const role = loginRoleRef.current;
+    signIn(role);
+    if (role === 'admin') {
+      window.location.href = '/admin';
+    }
+    // for 'user', the store update triggers page.tsx to show the dashboard
+  }, [signIn]);
 
   return (
     <div className="bg-white flex items-center justify-center min-h-screen p-3 sm:p-4 md:p-6">
@@ -679,7 +694,7 @@ export default function AnimatedLoginPage() {
               <CoverPanel type="login" role={loginRole} />
             </div>
             <div ref={frontRef} className="w-full md:w-[58%] min-w-0 overflow-y-auto">
-              <LoginForm onToggle={handleToggle} onSignIn={signIn} onRoleChange={setLoginRole} />
+              <LoginForm onToggle={handleToggle} onSignIn={handleSignIn} onRoleChange={handleRoleChange} />
             </div>
           </div>
           {/* Back Face - Signup */}

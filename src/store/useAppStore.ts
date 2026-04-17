@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Page = 'landing' | 'signin' | 'signup' | 'dashboard' | 'compliance';
+export type AuthRole = 'user' | 'admin' | null;
 
 interface AppState {
   currentPage: Page;
   isAuthenticated: boolean;
+  authRole: AuthRole;
   sidebarTab: 'dashboard' | 'shifts' | 'compliance';
   sidebarOpen: boolean;
   userName: string;
@@ -14,7 +16,7 @@ interface AppState {
   navigateTo: (page: Page) => void;
   setSidebarTab: (tab: 'dashboard' | 'shifts' | 'compliance') => void;
   setSidebarOpen: (open: boolean) => void;
-  signIn: () => void;
+  signIn: (role?: AuthRole) => void;
   signOut: () => void;
 }
 
@@ -23,6 +25,7 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       currentPage: 'landing',
       isAuthenticated: false,
+      authRole: null,
       sidebarTab: 'dashboard',
       sidebarOpen: false,
       userName: 'Sarah Johnson',
@@ -38,14 +41,14 @@ export const useAppStore = create<AppState>()(
         }
       },
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      signIn: () => set({ isAuthenticated: true, currentPage: 'dashboard', sidebarOpen: false }),
-      signOut: () => set({ isAuthenticated: false, currentPage: 'landing', sidebarTab: 'dashboard', sidebarOpen: false }),
+      signIn: (role = 'user') => set({ isAuthenticated: true, authRole: role, currentPage: role === 'admin' ? 'landing' : 'dashboard', sidebarOpen: false }),
+      signOut: () => set({ isAuthenticated: false, authRole: null, currentPage: 'landing', sidebarTab: 'dashboard', sidebarOpen: false }),
     }),
     {
       name: 'staffist-app-state',
-      skipHydration: true,
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
+        authRole: state.authRole,
         sidebarTab: state.sidebarTab,
       }),
     }
