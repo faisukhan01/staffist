@@ -175,7 +175,7 @@ function StatCard({ stat, index }: { stat: typeof requestStats[number]; index: n
   const Icon = stat.icon;
   return (
     <Card
-      className="border border-border/50 card-stat bg-card rounded-xl animate-fade-in-up"
+      className="border border-border/50 card-stat bg-card card-hover-group rounded-xl animate-fade-in-up relative overflow-hidden"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <CardContent className="p-4">
@@ -193,6 +193,7 @@ function StatCard({ stat, index }: { stat: typeof requestStats[number]; index: n
           </div>
         </div>
       </CardContent>
+      <div className="card-sweep-line card-sweep-line-blue" />
     </Card>
   );
 }
@@ -217,7 +218,7 @@ function CandidateCard({
 
   return (
     <div
-      className="p-4 rounded-xl border border-border/40 hover:border-blue-200/70 dark:hover:border-blue-800/40 bg-card/50 hover:bg-blue-50/30 dark:hover:bg-blue-950/10 transition-all duration-200 group animate-fade-in-up cursor-pointer"
+      className="card-hover-group relative p-4 rounded-xl border border-border/40 hover:border-blue-200/70 dark:hover:border-blue-800/40 bg-card/50 hover:bg-blue-50/30 dark:hover:bg-blue-950/10 transition-colors duration-200 animate-fade-in-up cursor-pointer overflow-hidden"
       style={{ animationDelay: `${index * 70}ms` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -328,6 +329,7 @@ function CandidateCard({
           </Button>
         </div>
       </div>
+      <div className="card-sweep-line card-sweep-line-blue" />
     </div>
   );
 }

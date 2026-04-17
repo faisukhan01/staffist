@@ -563,3 +563,35 @@ html {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ── Card sweep line animation ── */
+.card-sweep-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.card-sweep-line-blue {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+}
+.card-sweep-line-amber {
+  background: linear-gradient(to right, #f59e0b, #f97316);
+}
+.card-sweep-line-emerald {
+  background: linear-gradient(to right, #10b981, #14b8a6);
+}
+
+/* Trigger: any ancestor with .card-hover-group triggers the sweep on hover */
+.card-hover-group:hover .card-sweep-line {
+  transform: scaleX(1);
+}
+
+/* Icon scale on card hover */
+.card-hover-group:hover .card-hover-group-icon {
+  transform: scale(1.1);
+}

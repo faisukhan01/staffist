@@ -103,7 +103,7 @@ function StatCard({ stat, index }: { stat: typeof stats[number]; index: number }
   const Icon = stat.icon;
   const colors = colorMap[stat.color];
   return (
-    <Card className="border border-border/50 card-stat bg-card group rounded-xl animate-fade-in-up" style={{ animationDelay: `${index * 60}ms` }}>
+    <Card className="border border-border/50 card-stat bg-card card-hover-group rounded-xl animate-fade-in-up relative overflow-hidden" style={{ animationDelay: `${index * 60}ms` }}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-3">
@@ -114,11 +114,12 @@ function StatCard({ stat, index }: { stat: typeof stats[number]; index: number }
               <span className={`text-[11px] font-medium ${stat.trend === "up" ? colors.trend : "text-muted-foreground"}`}>{stat.change}</span>
             </div>
           </div>
-          <div className={`p-2.5 rounded-xl ${colors.icon} group-hover:scale-110 transition-transform duration-300`}>
+          <div className={`p-2.5 rounded-xl ${colors.icon} transition-transform duration-300 card-hover-group-icon`}>
             <Icon className="w-5 h-5" strokeWidth={1.8} />
           </div>
         </div>
       </CardContent>
+      <div className="card-sweep-line card-sweep-line-blue" />
     </Card>
   );
 }
@@ -234,7 +235,7 @@ export function AdminDashboardPage() {
           <CardContent className="px-6 pb-5 pt-3">
             <div className="space-y-2.5">
               {pendingApprovals.map((item, i) => (
-                <div key={i} className="p-3 rounded-lg border border-border/40 hover:border-border/80 hover:bg-muted/20 transition-all duration-200 group">
+                <div key={i} className="card-hover-group relative p-3 rounded-lg border border-border/40 hover:border-border/80 hover:bg-muted/20 transition-colors duration-200 overflow-hidden">
                   <p className="text-[13px] font-medium text-foreground leading-snug">{item.title}</p>
                   <p className="text-[11px] text-muted-foreground mt-1">{item.requestedBy} · {item.detail}</p>
                   <div className="flex items-center gap-2 mt-2.5">
@@ -247,6 +248,7 @@ export function AdminDashboardPage() {
                       Decline
                     </Button>
                   </div>
+                  <div className="card-sweep-line card-sweep-line-blue" />
                 </div>
               ))}
             </div>
@@ -306,19 +308,21 @@ export function AdminDashboardPage() {
               <span className="text-[14px] font-semibold text-foreground">AI Insights</span>
             </div>
             <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-blue-100/50 dark:border-blue-900/20 hover:shadow-sm transition-shadow">
+              <div className="card-hover-group relative p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-blue-100/50 dark:border-blue-900/20 hover:shadow-sm transition-shadow overflow-hidden">
                 <p className="text-[12px] font-medium text-foreground mb-1">Staffing Optimization</p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
                   ICU staffing should increase by 2 nurses during night shifts for optimal coverage.
                 </p>
+                <div className="card-sweep-line card-sweep-line-blue" />
               </div>
-              <div className="p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-blue-100/50 dark:border-blue-900/20 hover:shadow-sm transition-shadow">
+              <div className="card-hover-group relative p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-blue-100/50 dark:border-blue-900/20 hover:shadow-sm transition-shadow overflow-hidden">
                 <p className="text-[12px] font-medium text-foreground mb-1">Cost Efficiency</p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
                   Platform usage reduced agency costs by 32% this quarter. Expand to more departments.
                 </p>
+                <div className="card-sweep-line card-sweep-line-blue" />
               </div>
-              <div className="p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-emerald-100/50 dark:border-emerald-900/20 hover:shadow-sm transition-shadow">
+              <div className="card-hover-group relative p-3 rounded-lg bg-white/80 dark:bg-slate-800/50 border border-emerald-100/50 dark:border-emerald-900/20 hover:shadow-sm transition-shadow overflow-hidden">
                 <p className="text-[12px] font-medium text-foreground mb-1.5">Compliance Score</p>
                 <div className="flex items-center gap-2.5">
                   <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
@@ -326,6 +330,7 @@ export function AdminDashboardPage() {
                   </div>
                   <span className="text-[13px] font-bold text-emerald-600 tabular-nums">93%</span>
                 </div>
+                <div className="card-sweep-line card-sweep-line-emerald" />
               </div>
             </div>
             <Button variant="outline" className="mt-4 w-full text-[12px] h-8 border-blue-200/60 dark:border-blue-800/40 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg font-medium">
@@ -363,7 +368,7 @@ export function AdminDashboardPage() {
                 { label: "Mandatory Training", value: 87, total: 247, color: "bg-amber-500", desc: "215 complete, 32 in progress" },
                 { label: "Immunization Records", value: 91, total: 247, color: "bg-violet-500", desc: "225 current, 22 expiring" },
               ].map((item, i) => (
-                <div key={item.label} className="p-4 rounded-xl border border-border/40 hover:border-border/70 hover:shadow-sm transition-all duration-200 bg-gradient-to-br from-white/80 to-white dark:from-slate-800/40 to-slate-800/20">
+                <div key={item.label} className="card-hover-group relative p-4 rounded-xl border border-border/40 hover:border-border/70 hover:shadow-sm transition-colors duration-200 bg-gradient-to-br from-white/80 to-white dark:from-slate-800/40 to-slate-800/20 overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className={`w-2 h-2 rounded-full ${item.color} shadow-sm`} />
@@ -375,6 +380,7 @@ export function AdminDashboardPage() {
                     <div className={`h-full rounded-full ${item.color} progress-animated`} style={{ width: `${item.value}%`, animationDelay: `${i * 150}ms` }} />
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-2">{item.desc}</p>
+                  <div className="card-sweep-line card-sweep-line-blue" />
                 </div>
               ))}
             </div>
@@ -402,7 +408,7 @@ export function AdminDashboardPage() {
           <CardContent className="px-6 pb-5 pt-3">
             <div className="space-y-2.5">
               {expiryAlerts.map((item, i) => (
-                <div key={i} className="flex items-start gap-3.5 p-3.5 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-200 bg-gradient-to-br from-white/60 to-white dark:from-slate-800/30 to-slate-800/20">
+                <div key={i} className={`card-hover-group relative flex items-start gap-3.5 p-3.5 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-colors duration-200 bg-gradient-to-br from-white/60 to-white dark:from-slate-800/30 to-slate-800/20 overflow-hidden`}>
                   <div className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${
                     item.urgency === "warning"
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30"
@@ -419,6 +425,7 @@ export function AdminDashboardPage() {
                       Action required
                     </p>
                   </div>
+                  <div className={`card-sweep-line ${item.urgency === "warning" ? "card-sweep-line-amber" : "card-sweep-line-emerald"}`} />
                 </div>
               ))}
             </div>
