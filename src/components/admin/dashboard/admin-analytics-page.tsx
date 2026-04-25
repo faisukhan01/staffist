@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,8 +11,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
   TrendingUp,
-  TrendingDown,
   Clock,
   Shield,
   DollarSign,
@@ -24,56 +35,85 @@ import {
   Users,
   Target,
   Star,
-  Flame,
   ArrowUpRight,
   ArrowDownRight,
+  RefreshCw,
   ChevronDown,
 } from "lucide-react";
 
-/* ═══════════════════════════════════════════════════════════════
-   DATA
-   ═══════════════════════════════════════════════════════════════ */
+/* ── Types ── */
+interface KpiMetric {
+  title: string;
+  value: string;
+  change: string;
+  changeType: "positive" | "negative" | "neutral";
+  icon: React.ElementType;
+  sub: string;
+  color: string;
+  iconBg: string;
+}
 
-const overviewStats = [
+/* ── Data ── */
+const kpis: KpiMetric[] = [
   {
-    title: "Total Shifts Filled",
-    value: "1,247",
-    change: "+12%",
-    changeLabel: "vs last week",
-    trend: "up" as const,
-    icon: Calendar,
+    title: "Total Revenue",
+    value: "£2.4M",
+    change: "+18.2%",
+    changeType: "positive",
+    icon: DollarSign,
+    sub: "Monthly recurring revenue",
+    color: "text-emerald-600",
+    iconBg: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
   },
   {
-    title: "Avg Time to Fill",
-    value: "4.2h",
-    change: "-18%",
-    changeLabel: "vs last week",
-    trend: "down" as const,
+    title: "Active Placements",
+    value: "1,847",
+    change: "+12.4%",
+    changeType: "positive",
+    icon: Users,
+    sub: "Currently active staff",
+    color: "text-blue-600",
+    iconBg: "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
+  },
+  {
+    title: "Fill Rate",
+    value: "94.7%",
+    change: "+2.1%",
+    changeType: "positive",
+    icon: Target,
+    sub: "Shifts successfully filled",
+    color: "text-violet-600",
+    iconBg: "bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400",
+  },
+  {
+    title: "Avg. Time to Fill",
+    value: "3.2h",
+    change: "-24.5%",
+    changeType: "positive",
     icon: Clock,
+    sub: "Average placement time",
+    color: "text-amber-600",
+    iconBg: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400",
+  },
+  {
+    title: "Client Satisfaction",
+    value: "4.8/5",
+    change: "+0.2",
+    changeType: "positive",
+    icon: Star,
+    sub: "Average client rating",
+    color: "text-rose-600",
+    iconBg: "bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400",
   },
   {
     title: "Compliance Rate",
-    value: "98.7%",
-    change: "+0.3%",
-    changeLabel: "vs last week",
-    trend: "up" as const,
+    value: "99.1%",
+    change: "+0.4%",
+    changeType: "positive",
     icon: Shield,
-  },
-  {
-    title: "Cost Savings",
-    value: "32%",
-    change: "",
-    changeLabel: "vs traditional",
-    trend: "up" as const,
-    icon: DollarSign,
-  },
-  {
-    title: "New Staff Onboarded",
-    value: "89",
-    change: "+24%",
-    changeLabel: "vs last week",
-    trend: "up" as const,
-    icon: UserPlus,
+    sub: "Staff compliance status",
+    color: "text-teal-600",
+    iconBg: "bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400",
   },
 ];
 
@@ -87,572 +127,381 @@ const availabilityData = [
   { day: "Sun", available: 58, demand: 40 },
 ];
 
+const weeklyTrends = [
+  { week: "Wk 1", placements: 280, revenue: 420 },
+  { week: "Wk 2", placements: 295, revenue: 443 },
+  { week: "Wk 3", placements: 260, revenue: 390 },
+  { week: "Wk 4", placements: 310, revenue: 465 },
+  { week: "Wk 5", placements: 325, revenue: 488 },
+];
+
 const topRoles = [
-  { role: "Registered Nurse", count: 340 },
-  { role: "Healthcare Assistant", count: 280 },
-  { role: "Physiotherapist", count: 180 },
-  { role: "Radiographer", count: 120 },
-  { role: "Occupational Therapist", count: 95 },
+  { role: "Registered Nurse", count: 340, pct: 100 },
+  { role: "Healthcare Assistant", count: 280, pct: 82 },
+  { role: "Physiotherapist", count: 180, pct: 53 },
+  { role: "Radiographer", count: 120, pct: 35 },
+  { role: "Occupational Therapist", count: 95, pct: 28 },
 ];
 
-const performanceMetrics = [
-  { label: "Retention Rate", value: "94.2%", icon: Users },
-  { label: "Performance", value: "4.8/5", icon: Star },
-  { label: "Repeat Placement", value: "73%", icon: Target },
-  { label: "NPS", value: "8.3", icon: Flame },
+const costData = [
+  { label: "Hourly Rate", agency: 120, platform: 80 },
+  { label: "Placement Fee", agency: 180, platform: 100 },
+  { label: "Admin Costs", agency: 60, platform: 30 },
+  { label: "Total Cost", agency: 360, platform: 210 },
 ];
 
-const retentionData = [
-  { month: "Jan", value: 92 },
-  { month: "Feb", value: 93.5 },
-  { month: "Mar", value: 91 },
-  { month: "Apr", value: 94 },
-  { month: "May", value: 93.8 },
-  { month: "Jun", value: 94.2 },
+const departmentPerformance = [
+  { dept: "Emergency", fillRate: 96, target: 95, status: "above" },
+  { dept: "Surgery", fillRate: 98, target: 95, status: "above" },
+  { dept: "Pediatrics", fillRate: 97, target: 95, status: "above" },
+  { dept: "Maternity", fillRate: 95, target: 95, status: "meet" },
+  { dept: "ICU", fillRate: 94, target: 95, status: "below" },
+  { dept: "Cardiology", fillRate: 92, target: 95, status: "below" },
 ];
 
-const forecastData = [
-  { week: "Week 1", value: 280 },
-  { week: "Week 2", value: 295 },
-  { week: "Week 3", value: 260 },
-  { week: "Week 4", value: 300 },
+const regionalData = [
+  { region: "London", placements: 485, revenue: "£728K", growth: "+14.2%" },
+  { region: "Manchester", placements: 342, revenue: "£513K", growth: "+18.7%" },
+  { region: "Birmingham", placements: 298, revenue: "£447K", growth: "+9.3%" },
+  { region: "Leeds", placements: 267, revenue: "£401K", growth: "+22.1%" },
+  { region: "Liverpool", placements: 234, revenue: "£351K", growth: "+11.8%" },
 ];
 
-const costComparison = [
-  { label: "Traditional Agency", values: [120, 180, 60, 360], color: "from-red-400 to-red-300", hoverColor: "hover:from-red-500 hover:to-red-400" },
-  { label: "Staffist Platform", values: [80, 100, 30, 210], color: "from-blue-600 to-blue-400", hoverColor: "hover:from-blue-700 hover:to-blue-500" },
-];
-
-const costLabels = ["Hourly Rate", "Placement Fee", "Admin Costs", "Total Cost"];
-
-const heatmapData = {
-  departments: ["Emergency", "Cardiology", "ICU", "Surgery", "Pediatrics"],
+const heatmap = {
+  departments: ["Emergency", "ICU", "Surgery", "Cardiology", "Pediatrics", "Maternity"],
   shifts: ["Morning", "Afternoon", "Night"],
   data: [
-    [92, 88, 75, 85, 90],
-    [78, 82, 70, 80, 85],
-    [65, 72, 60, 68, 75],
+    [95, 92, 88, 85, 90, 94],
+    [88, 85, 92, 82, 87, 91],
+    [78, 75, 82, 70, 80, 85],
   ],
 };
 
-/* ═══════════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════════ */
-
-function getHeatColor(v: number) {
-  if (v >= 85) return "bg-emerald-500 text-white";
+/* ── Helpers ── */
+function heatCell(v: number) {
+  if (v >= 90) return "bg-emerald-500 text-white";
+  if (v >= 80) return "bg-emerald-400 text-white";
   if (v >= 70) return "bg-amber-400 text-white";
   return "bg-red-400 text-white";
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   REUSABLE CHART BAR WITH TOOLTIP
-   ═══════════════════════════════════════════════════════════════ */
-
-interface ChartBarWithTooltipProps {
-  /** Height as percentage string, e.g. "80%" */
-  height: string;
-  /** Display value shown in tooltip, e.g. "92" */
-  value: string;
-  /** Tooltip label, e.g. "Available" */
-  label: string;
-  /** Gradient classes for the bar fill, e.g. "from-blue-600 to-blue-400" */
-  gradient: string;
-  /** Additional hover gradient classes */
-  hoverGradient?: string;
-  /** Additional className for the bar element */
-  className?: string;
-  /** Animation delay index for staggered entry (multiplied by 60ms internally) */
-  delayIndex?: number;
+function deptStatus(s: string) {
+  if (s === "above") return "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400";
+  if (s === "meet")  return "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-400";
+  return "bg-red-50 text-red-700 border-red-200/60 dark:bg-red-950/40 dark:text-red-400";
 }
 
-function ChartBarWithTooltip({
-  height,
-  value,
-  label,
-  gradient,
-  hoverGradient = "",
-  className = "",
-  delayIndex = 0,
-}: ChartBarWithTooltipProps) {
+/* ── Custom Recharts Tooltip ── */
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
   return (
-    <div
-      className={`chart-bar-container flex-1 ${className}`}
-      style={{ height }}
-    >
-      {/* Tooltip */}
-      <div className="chart-tooltip">
-        <div className="flex flex-col items-center px-2.5 py-1.5 rounded-lg bg-popover text-popover-foreground shadow-lg border border-border/60 text-[11px]">
-          <span className="font-bold text-foreground tabular-nums">{value}</span>
-          <span className="text-muted-foreground">{label}</span>
+    <div className="rounded-xl border border-border/60 bg-popover text-popover-foreground shadow-lg px-3 py-2.5 text-xs">
+      <p className="font-semibold text-foreground mb-1.5">{label}</p>
+      {payload.map((entry: any, i: number) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.color }} />
+          <span className="text-muted-foreground">{entry.name}:</span>
+          <span className="font-semibold tabular-nums">{entry.value}</span>
         </div>
-      </div>
-      {/* Bar */}
-      <div
-        className={`w-full h-full rounded-t-md bg-gradient-to-t ${gradient} ${hoverGradient} transition-all duration-300 cursor-pointer hover:brightness-110`}
-        style={{
-          animationDelay: `${delayIndex * 60}ms`,
-          minHeight: "4px",
-        }}
-      />
+      ))}
     </div>
   );
-}
+};
 
-/* ═══════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    MAIN COMPONENT
-   ═══════════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 
 export function AdminAnalyticsPage() {
-  const maxAvailable = Math.max(...availabilityData.map((d) => d.available));
-  const maxTopRole = Math.max(...topRoles.map((r) => r.count));
-  const maxCost = 360;
-  const maxRetention = Math.max(...retentionData.map((d) => d.value));
-  const minRetention = Math.min(...retentionData.map((d) => d.value));
-  const retentionRange = maxRetention - minRetention || 1;
-  const maxForecast = Math.max(...forecastData.map((d) => d.value));
-
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
-      {/* ──── Page Header ──── */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up"
-        style={{ animationDelay: "0ms" }}
-      >
-        <div>
-          <h1 className="text-[24px] sm:text-[26px] font-bold tracking-tight text-foreground">
-            Analytics
-          </h1>
-          <p className="text-[13px] text-muted-foreground mt-1.5">
-            Workforce insights and performance metrics
-          </p>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <BarChart3 className="w-5 h-5" strokeWidth={1.8} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Analytics</h1>
+            <p className="text-[12px] text-muted-foreground">Real-time workforce performance metrics</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 text-[13px] gap-1.5 border-border/60 bg-card hover:bg-muted/50"
-          >
+          <Button variant="outline" size="sm" className="h-9 px-3 text-xs gap-1.5 border-border/60">
             <Calendar className="w-3.5 h-3.5" />
-            This Week
+            Last 30 Days
             <ChevronDown className="w-3 h-3 text-muted-foreground" />
           </Button>
-          <Button
-            size="sm"
-            className="h-8 text-[13px] gap-1.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-sm"
-          >
+          <Button variant="outline" size="sm" className="h-9 px-3 text-xs gap-1.5">
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh
+          </Button>
+          <Button size="sm" className="h-9 px-3 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white">
             <Download className="w-3.5 h-3.5" />
             Export
           </Button>
         </div>
       </div>
 
-      {/* ──── Overview Stats ──── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {overviewStats.map((stat, idx) => {
-          const Icon = stat.icon;
-          const isTimeToFill = stat.title === "Avg Time to Fill";
-          const isPositiveTrend = stat.trend === "up";
-          const showPositiveColor = isTimeToFill
-            ? !isPositiveTrend
-            : isPositiveTrend;
-
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        {kpis.map((kpi, i) => {
+          const Icon = kpi.icon;
+          const isPositive = kpi.changeType === "positive";
           return (
             <Card
-              key={stat.title}
-              className="border border-border/50 card-stat rounded-xl bg-card animate-fade-in-up"
-              style={{ animationDelay: `${80 + idx * 60}ms` }}
+              key={kpi.title}
+              className="border border-border/50 card-stat bg-card card-hover-group rounded-xl animate-fade-in-up relative overflow-hidden"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
               <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500/15 to-blue-600/5 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-[#2563EB]" />
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-2 rounded-lg ${kpi.iconBg} transition-transform duration-300 card-hover-group-icon`}>
+                    <Icon className="w-4 h-4" strokeWidth={1.8} />
                   </div>
-                  {stat.change && (
-                    <Badge
-                      variant="secondary"
-                      className={`h-5 px-1.5 text-[11px] font-semibold gap-0.5 border ${
-                        showPositiveColor
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-200/50 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/40"
-                          : "bg-blue-50 text-blue-600 border-blue-200/50 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800/40"
-                      }`}
-                    >
-                      {showPositiveColor ? (
-                        <ArrowUpRight className="w-3 h-3" />
-                      ) : (
-                        <ArrowDownRight className="w-3 h-3" />
-                      )}
-                      {stat.change}
-                    </Badge>
-                  )}
+                  <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${isPositive ? "text-emerald-600" : "text-red-500"}`}>
+                    {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {kpi.change}
+                  </span>
                 </div>
-                <p className="text-[24px] font-bold text-foreground leading-none mb-1 tabular-nums">
-                  {stat.value}
+                <p className="text-[22px] font-bold text-foreground tracking-tight leading-none tabular-nums mb-1">
+                  {kpi.value}
                 </p>
-                <p className="text-[12px] text-muted-foreground font-medium">
-                  {stat.title}
-                </p>
-                {!stat.change && (
-                  <p className="text-[11px] text-muted-foreground/70 mt-1">
-                    {stat.changeLabel}
-                  </p>
-                )}
+                <p className="text-[11px] font-semibold text-foreground mb-0.5">{kpi.title}</p>
+                <p className="text-[10px] text-muted-foreground leading-snug">{kpi.sub}</p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* ──── Charts Row 1 ──── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Row 1: Availability + Weekly Trend ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
         {/* Staff Availability vs Demand */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "380ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "360ms" }}>
+          <CardHeader className="pb-0 px-5 pt-5">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Staff Availability vs Demand
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Weekly staffing levels overview
-                </CardDescription>
-              </div>
-              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            <div className="flex items-center gap-5 mt-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm bg-gradient-to-t from-blue-600 to-blue-400" />
-                <span className="text-[12px] text-muted-foreground">
-                  Available Staff
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm bg-blue-200/80" />
-                <span className="text-[12px] text-muted-foreground">
-                  Demand
-                </span>
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                  <Activity className="w-4 h-4" strokeWidth={1.8} />
+                </div>
+                <div>
+                  <CardTitle className="text-[13px] font-semibold">Staff Availability vs Demand</CardTitle>
+                  <CardDescription className="text-[11px] mt-0.5">Weekly staffing levels</CardDescription>
+                </div>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <div className="flex items-end gap-2.5 h-52">
-              {availabilityData.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex-1 flex flex-col items-center gap-2"
-                >
-                  <div className="flex items-end gap-1 w-full h-40">
-                    <ChartBarWithTooltip
-                      height={`${(item.available / maxAvailable) * 100}%`}
-                      value={String(item.available)}
-                      label="Available"
-                      gradient="from-blue-600 to-blue-400"
-                      hoverGradient="hover:from-blue-700 hover:to-blue-500"
-                      delayIndex={i}
-                    />
-                    <ChartBarWithTooltip
-                      height={`${(item.demand / maxAvailable) * 100}%`}
-                      value={String(item.demand)}
-                      label="Demand"
-                      gradient="from-blue-200 to-blue-100 dark:from-blue-900/60 dark:to-blue-800/40"
-                      hoverGradient="hover:from-blue-300 hover:to-blue-200 dark:hover:from-blue-800/70 dark:hover:to-blue-700/50"
-                      delayIndex={i}
-                    />
-                  </div>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {item.day}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <CardContent className="px-2 pb-4 pt-3">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={availabilityData} barGap={4} barCategoryGap="28%">
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={28} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)", opacity: 0.5 }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Bar dataKey="available" name="Available" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="demand" name="Demand" fill="#e5e7eb" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Most Frequently Filled Roles */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "440ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Most Frequently Filled Roles
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Top roles by placement volume
-                </CardDescription>
+        {/* Weekly Placement Trend */}
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "420ms" }}>
+          <CardHeader className="pb-0 px-5 pt-5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
+                <TrendingUp className="w-4 h-4" strokeWidth={1.8} />
               </div>
-              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <CardTitle className="text-[13px] font-semibold">Weekly Placement Trend</CardTitle>
+                <CardDescription className="text-[11px] mt-0.5">Placements & revenue (£K) over 5 weeks</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <div className="space-y-5">
-              {topRoles.map((item, i) => (
-                <div key={i} className="space-y-2.5">
+          <CardContent className="px-2 pb-4 pt-3">
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={weeklyTrends}>
+                <defs>
+                  <linearGradient id="gradPlacements" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="week" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={28} />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Area type="monotone" dataKey="placements" name="Placements" stroke="#2563eb" strokeWidth={2} fill="url(#gradPlacements)" dot={{ fill: "#2563eb", r: 3 }} />
+                <Area type="monotone" dataKey="revenue" name="Revenue (£K)" stroke="#10b981" strokeWidth={2} fill="url(#gradRevenue)" dot={{ fill: "#10b981", r: 3 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Row 2: Top Roles + Department Performance ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        {/* Top Roles */}
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "480ms" }}>
+          <CardHeader className="pb-3 px-5 pt-5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400">
+                <Users className="w-4 h-4" strokeWidth={1.8} />
+              </div>
+              <div>
+                <CardTitle className="text-[13px] font-semibold">Top Roles by Placement</CardTitle>
+                <CardDescription className="text-[11px] mt-0.5">Most in-demand positions</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="px-5 pb-5 space-y-3">
+            {topRoles.map((item, i) => {
+              const colors = ["#2563eb", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"];
+              return (
+                <div key={item.role} className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-medium text-foreground">
-                      {item.role}
-                    </span>
-                    <span className="text-[13px] font-semibold text-foreground tabular-nums">
-                      {item.count}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                        style={{ background: colors[i] }}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="text-[12px] font-medium text-foreground">{item.role}</span>
+                    </div>
+                    <span className="text-[12px] font-bold text-foreground tabular-nums">{item.count}</span>
                   </div>
-                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-600 to-blue-400 progress-animated"
-                      style={{
-                        width: `${(item.count / maxTopRole) * 100}%`,
-                        animationDelay: `${500 + i * 100}ms`,
-                      }}
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${item.pct}%`, background: colors[i] }}
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ──── Charts Row 2 ──── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cost Comparison */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "500ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Cost Comparison
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Platform vs Traditional Agency
-                </CardDescription>
-              </div>
-              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-muted-foreground" />
-              </div>
-            </div>
-            {/* Legend */}
-            <div className="flex items-center gap-5 mt-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm bg-gradient-to-t from-red-400 to-red-300" />
-                <span className="text-[12px] text-muted-foreground">
-                  Traditional Agency
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-sm bg-gradient-to-t from-blue-600 to-blue-400" />
-                <span className="text-[12px] text-muted-foreground">
-                  Staffist Platform
-                </span>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <div className="flex items-end gap-3 h-48">
-              {costLabels.map((label, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="flex items-end gap-1 w-full h-36">
-                    {costComparison.map((comp, ci) => (
-                      <ChartBarWithTooltip
-                        key={comp.label}
-                        height={`${(comp.values[i] / maxCost) * 100}%`}
-                        value={`\u00A3${comp.values[i]}`}
-                        label={comp.label}
-                        gradient={comp.color}
-                        hoverGradient={comp.hoverColor}
-                        delayIndex={i * 2 + ci}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[11px] text-muted-foreground font-medium text-center leading-tight">
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
+              );
+            })}
           </CardContent>
         </Card>
 
-        {/* Staff Retention & Performance */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "560ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Staff Retention &amp; Performance
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Key quality metrics overview
-                </CardDescription>
+        {/* Department Performance */}
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "540ms" }}>
+          <CardHeader className="pb-3 px-5 pt-5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
+                <Target className="w-4 h-4" strokeWidth={1.8} />
               </div>
-              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                <Users className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <CardTitle className="text-[13px] font-semibold">Department Fill Rate</CardTitle>
+                <CardDescription className="text-[11px] mt-0.5">vs 95% target benchmark</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
-            {/* Metric Cards */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {performanceMetrics.map((metric, i) => {
-                const Icon = metric.icon;
-                return (
+          <CardContent className="px-5 pb-5 space-y-2">
+            {departmentPerformance.map((dept) => (
+              <div key={dept.dept} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                <span className="text-[12px] font-medium text-foreground w-28 flex-shrink-0">{dept.dept}</span>
+                <div className="flex-1 mx-4 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    key={i}
-                    className="rounded-xl border border-border/40 bg-gradient-to-br from-muted/40 to-muted/20 p-3.5 text-center transition-all duration-200 hover:border-blue-200/60 hover:shadow-sm"
-                  >
-                    <Icon className="w-4 h-4 mx-auto text-[#2563EB] mb-2" />
-                    <p className="text-[18px] font-bold text-foreground leading-none tabular-nums">
-                      {metric.value}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground font-medium mt-1.5">
-                      {metric.label}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Retention Trend */}
-            <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                Retention Trend (6 months)
-              </p>
-              <div className="flex items-end gap-2 h-28">
-                {retentionData.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 flex flex-col items-center gap-1.5"
-                  >
-                    <ChartBarWithTooltip
-                      height={`${((item.value - minRetention + 1) / (retentionRange + 2)) * 100}%`}
-                      value={`${item.value}%`}
-                      label={item.month}
-                      gradient="from-emerald-500 to-emerald-400"
-                      hoverGradient="hover:from-emerald-600 hover:to-emerald-500"
-                      delayIndex={i}
-                    />
-                    <span className="text-[11px] text-muted-foreground font-medium">
-                      {item.month}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ──── Charts Row 3 ──── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Staffing Forecast */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "620ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Staffing Forecast
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Projected shifts for the next 4 weeks
-                </CardDescription>
-              </div>
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-[#2563EB]" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <div className="flex items-end gap-4 h-48">
-              {forecastData.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex-1 flex flex-col items-center gap-2"
-                >
-                  <ChartBarWithTooltip
-                    height={`${(item.value / maxForecast) * 100}%`}
-                    value={String(item.value)}
-                    label={item.week}
-                    gradient="from-blue-600 to-blue-400"
-                    hoverGradient="hover:from-blue-700 hover:to-blue-500"
-                    delayIndex={i}
+                    className={`h-full rounded-full ${dept.status === "above" ? "bg-emerald-500" : dept.status === "meet" ? "bg-blue-500" : "bg-amber-500"}`}
+                    style={{ width: `${dept.fillRate}%` }}
                   />
-                  <span className="text-[12px] text-muted-foreground font-medium">
-                    {item.week}
-                  </span>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-[12px] font-bold tabular-nums text-foreground">{dept.fillRate}%</span>
+                  <Badge
+                    variant="secondary"
+                    className={`text-[10px] font-medium px-1.5 py-0 h-4 border ${deptStatus(dept.status)}`}
+                  >
+                    {dept.status === "above" ? "Above" : dept.status === "meet" ? "On Target" : "Below"}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Shift Fulfillment Heatmap */}
-        <Card
-          className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up"
-          style={{ animationDelay: "680ms" }}
-        >
-          <CardHeader className="pb-4 px-6 pt-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-[14px] font-semibold">
-                  Shift Fulfillment Heatmap
-                </CardTitle>
-                <CardDescription className="text-[12px] mt-0.5">
-                  Departmental efficiency by shift type
-                </CardDescription>
+      {/* ── Row 3: Cost Comparison + Heatmap ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        {/* Cost Comparison */}
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "600ms" }}>
+          <CardHeader className="pb-0 px-5 pt-5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400">
+                <DollarSign className="w-4 h-4" strokeWidth={1.8} />
               </div>
-              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <CardTitle className="text-[13px] font-semibold">Cost Comparison</CardTitle>
+                <CardDescription className="text-[11px] mt-0.5">Staffist Platform vs Traditional Agency (£)</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
+          <CardContent className="px-2 pb-4 pt-3">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={costData} barGap={4} barCategoryGap="30%">
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={28} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)", opacity: 0.5 }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Bar dataKey="agency" name="Traditional Agency" fill="#ef4444" radius={[4, 4, 0, 0]} opacity={0.8} />
+                <Bar dataKey="platform" name="Staffist Platform" fill="#2563eb" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Shift Fulfillment Matrix */}
+        <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "660ms" }}>
+          <CardHeader className="pb-3 px-5 pt-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400">
+                  <BarChart3 className="w-4 h-4" strokeWidth={1.8} />
+                </div>
+                <div>
+                  <CardTitle className="text-[13px] font-semibold">Shift Fulfillment Matrix</CardTitle>
+                  <CardDescription className="text-[11px] mt-0.5">Fill rate % by department &amp; shift</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />90%+</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />70–89%</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-400 inline-block" />&lt;70%</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-[11px]">
                 <thead>
                   <tr>
-                    <th className="text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pb-3 w-24">
-                      Shift
-                    </th>
-                    {heatmapData.departments.map((dept, i) => (
-                      <th
-                        key={i}
-                        className="text-center text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pb-3 px-1"
-                      >
-                        {dept}
-                      </th>
+                    <th className="text-left text-muted-foreground font-medium pb-2 pr-3 w-24">Shift</th>
+                    {heatmap.departments.map((d) => (
+                      <th key={d} className="text-center text-muted-foreground font-medium pb-2 px-1">{d}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
-                  {heatmapData.shifts.map((shift, si) => (
-                    <tr key={si}>
-                      <td className="text-[12px] font-medium text-muted-foreground py-1.5 pr-3">
-                        {shift}
-                      </td>
-                      {heatmapData.data[si].map((val, di) => (
-                        <td key={di} className="px-1 py-1.5">
-                          <div
-                            className={`${getHeatColor(val)} text-[12px] font-bold rounded-md py-2.5 px-1 text-center transition-opacity hover:opacity-90 cursor-default select-none`}
-                          >
+                <tbody className="space-y-1">
+                  {heatmap.shifts.map((shift, rowIdx) => (
+                    <tr key={shift}>
+                      <td className="text-muted-foreground font-medium pr-3 py-1 whitespace-nowrap">{shift}</td>
+                      {heatmap.data[rowIdx].map((val, colIdx) => (
+                        <td key={colIdx} className="px-1 py-1 text-center">
+                          <span className={`inline-flex items-center justify-center w-full rounded-md py-1.5 font-semibold tabular-nums ${heatCell(val)}`}>
                             {val}%
-                          </div>
+                          </span>
                         </td>
                       ))}
                     </tr>
@@ -660,30 +509,70 @@ export function AdminAnalyticsPage() {
                 </tbody>
               </table>
             </div>
-            {/* Legend */}
-            <div className="flex items-center justify-center gap-5 mt-5 pt-4 border-t border-border/40">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-emerald-500" />
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  &ge; 85%
-                </span>
+
+            {/* Summary row */}
+            <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/40">
+              <div className="text-center">
+                <p className="text-[18px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">87.2%</p>
+                <p className="text-[10px] text-muted-foreground font-medium mt-0.5">Avg Fill Rate</p>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-amber-400" />
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  70&ndash;84%
-                </span>
+              <div className="text-center">
+                <p className="text-[13px] font-bold text-foreground">Surgery</p>
+                <p className="text-[10px] text-muted-foreground font-medium mt-0.5">Top Department</p>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-red-400" />
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  &lt; 70%
-                </span>
+              <div className="text-center">
+                <p className="text-[13px] font-bold text-amber-600 dark:text-amber-400">Night</p>
+                <p className="text-[10px] text-muted-foreground font-medium mt-0.5">Needs Attention</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Row 4: Regional Performance ── */}
+      <Card className="border border-border/50 card-elevated rounded-xl bg-card animate-fade-in-up" style={{ animationDelay: "720ms" }}>
+        <CardHeader className="pb-3 px-5 pt-5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
+              <Activity className="w-4 h-4" strokeWidth={1.8} />
+            </div>
+            <div>
+              <CardTitle className="text-[13px] font-semibold">Regional Performance</CardTitle>
+              <CardDescription className="text-[11px] mt-0.5">Placements and revenue by region</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12px]">
+              <thead>
+                <tr className="border-b border-border/60">
+                  <th className="text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.06em] pb-2 pr-6">Region</th>
+                  <th className="text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.06em] pb-2 pr-6">Placements</th>
+                  <th className="text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.06em] pb-2 pr-6">Revenue</th>
+                  <th className="text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.06em] pb-2">Growth</th>
+                </tr>
+              </thead>
+              <tbody>
+                {regionalData.map((row, i) => (
+                  <tr key={row.region} className="border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="py-2.5 pr-6 font-medium text-foreground">{row.region}</td>
+                    <td className="py-2.5 pr-6 text-right tabular-nums text-foreground font-semibold">{row.placements.toLocaleString()}</td>
+                    <td className="py-2.5 pr-6 text-right tabular-nums text-foreground">{row.revenue}</td>
+                    <td className="py-2.5 text-right">
+                      <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                        <ArrowUpRight className="w-3 h-3" />
+                        {row.growth.replace("+", "")}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

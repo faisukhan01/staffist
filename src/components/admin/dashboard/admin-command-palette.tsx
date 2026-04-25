@@ -7,6 +7,9 @@ import {
   LayoutDashboard,
   ClipboardList,
   ArrowRight,
+  Shield,
+  BarChart3,
+  UserPlus,
 } from "lucide-react";
 import type { PageView } from "@/components/admin/dashboard/admin-sidebar";
 
@@ -19,7 +22,9 @@ interface CommandPaletteProps {
 const pages: { id: PageView; label: string; description: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", description: "Overview of workforce, compliance & AI insights", icon: LayoutDashboard },
   { id: "staff-requests", label: "Staff Requests", description: "Create shifts & AI-powered candidate matching", icon: ClipboardList },
-  // compliance, analytics, registration — hidden from command palette (pages still exist)
+  { id: "compliance", label: "Compliance", description: "Monitor staff certifications and compliance status", icon: Shield },
+  { id: "analytics", label: "Analytics", description: "View performance metrics and workforce analytics", icon: BarChart3 },
+  { id: "registration", label: "Registration", description: "Manage staff registration and onboarding", icon: UserPlus },
 ];
 
 export function CommandPalette({ open, onClose, onNavigate }: CommandPaletteProps) {

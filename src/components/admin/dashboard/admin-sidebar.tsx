@@ -33,6 +33,9 @@ import {
   User,
   HelpCircle,
   ChevronDown,
+  Shield,
+  BarChart3,
+  UserPlus,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CommandPalette } from "@/components/admin/dashboard/admin-command-palette";
@@ -60,7 +63,9 @@ const pageMeta: Record<PageView, { label: string; group?: string }> = {
 const navItems: { id: PageView; label: string; icon: React.ElementType; badge?: number }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "staff-requests", label: "Staff Requests", icon: ClipboardList, badge: 3 },
-  // compliance, analytics, registration — hidden from nav (pages still exist)
+  { id: "compliance", label: "Compliance", icon: Shield },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "registration", label: "Registration", icon: UserPlus },
 ];
 
 const notifications = [
