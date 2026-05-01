@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   AreaChart,
   Area,
@@ -213,6 +214,44 @@ const ChartTooltip = ({ active, payload, label }: any) => {
 ══════════════════════════════════════════════════════════════ */
 
 export function AdminAnalyticsPage() {
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState("30days");
+
+  const handleRefresh = () => {
+    toast({
+      title: "Refreshing Data",
+      description: "Fetching latest analytics data...",
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Data Refreshed",
+        description: "Analytics dashboard updated with latest metrics.",
+      });
+    }, 1500);
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exporting Analytics",
+      description: "Generating comprehensive analytics report...",
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Analytics report has been downloaded successfully.",
+      });
+    }, 2000);
+  };
+
+  const handleDateRangeChange = () => {
+    toast({
+      title: "Date Range Updated",
+      description: "Analytics data filtered for the selected time period.",
+    });
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
 
@@ -228,16 +267,30 @@ export function AdminAnalyticsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-9 px-3 text-xs gap-1.5 border-border/60">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDateRangeChange}
+            className="h-9 px-3 text-xs gap-1.5 border-border/60"
+          >
             <Calendar className="w-3.5 h-3.5" />
             Last 30 Days
             <ChevronDown className="w-3 h-3 text-muted-foreground" />
           </Button>
-          <Button variant="outline" size="sm" className="h-9 px-3 text-xs gap-1.5">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            className="h-9 px-3 text-xs gap-1.5"
+          >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
           </Button>
-          <Button size="sm" className="h-9 px-3 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white">
+          <Button 
+            size="sm" 
+            onClick={handleExport}
+            className="h-9 px-3 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+          >
             <Download className="w-3.5 h-3.5" />
             Export
           </Button>

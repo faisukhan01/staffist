@@ -11,6 +11,27 @@ export default function Navbar() {
   const { navigateTo, isAuthenticated } = useAppStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 80; // Account for fixed navbar
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+    setMenuOpen(false);
+  };
+
+  const navLinks = [
+    { label: 'How It Works', id: 'how-it-works' },
+    { label: 'Features', id: 'features' },
+    { label: 'Pricing', id: 'pricing' },
+  ];
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -37,12 +58,13 @@ export default function Navbar() {
 
         {/* Desktop center links */}
         <div className="hidden md:flex items-center gap-1">
-          {['Compliance', 'International Recruitment'].map((label) => (
+          {navLinks.map((link) => (
             <button
-              key={label}
+              key={link.label}
+              onClick={() => scrollToSection(link.id)}
               className="group relative px-4 py-2 text-[13.5px] font-medium text-slate-500 hover:text-slate-900 transition-colors rounded-lg hover:bg-slate-50"
             >
-              {label}
+              {link.label}
               <span className="absolute bottom-1.5 left-4 right-4 h-[1.5px] bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left rounded-full" />
             </button>
           ))}
@@ -76,12 +98,13 @@ export default function Navbar() {
           className="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-6 pb-5"
         >
           <div className="flex flex-col gap-1 pt-3">
-            {['Compliance', 'International Recruitment'].map((l) => (
+            {navLinks.map((link) => (
               <button
-                key={l}
+                key={link.label}
+                onClick={() => scrollToSection(link.id)}
                 className="text-[13.5px] font-medium text-slate-500 hover:text-slate-900 py-2.5 text-left px-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                {l}
+                {link.label}
               </button>
             ))}
             <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">

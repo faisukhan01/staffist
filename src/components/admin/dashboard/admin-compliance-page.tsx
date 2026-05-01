@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -277,11 +278,42 @@ const statsCards = [
 // ---------------------------------------------------------------------------
 
 export function AdminCompliancePage() {
+  const { toast } = useToast();
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+
+  const handleExportCSV = () => {
+    toast({
+      title: "Exporting Data",
+      description: "Compliance data is being exported to CSV format...",
+    });
+    
+    // Simulate export
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Compliance report has been downloaded successfully.",
+      });
+    }, 1500);
+  };
+
+  const handleRunAudit = () => {
+    toast({
+      title: "Running Compliance Audit",
+      description: "Analyzing all staff compliance records...",
+    });
+    
+    // Simulate audit
+    setTimeout(() => {
+      toast({
+        title: "Audit Complete",
+        description: "Compliance audit finished. 231 of 247 staff fully compliant.",
+      });
+    }, 2000);
+  };
 
   // Filtering
   const filteredData = useMemo(() => {
@@ -346,6 +378,7 @@ export function AdminCompliancePage() {
           <Button
             variant="outline"
             size="sm"
+            onClick={handleExportCSV}
             className="text-[12px] h-8 rounded-lg border-border/50 text-muted-foreground hover:text-foreground"
           >
             <Download className="w-3.5 h-3.5 mr-1.5" />
@@ -353,6 +386,7 @@ export function AdminCompliancePage() {
           </Button>
           <Button
             size="sm"
+            onClick={handleRunAudit}
             className="text-[12px] h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20"
           >
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />

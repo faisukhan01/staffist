@@ -1,51 +1,75 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/components/ui/button';
-import { Check, ArrowRight, Star, Zap, Building2, Users } from 'lucide-react';
+import { Check, ArrowRight, Star, Zap, Building2, Globe } from 'lucide-react';
+import { BookDemoDialog } from '@/components/dialogs/BookDemoDialog';
+import { ContactSalesDialog } from '@/components/dialogs/ContactSalesDialog';
 
 const plans = [
   {
-    name: 'Healthcare Professionals',
-    price: '£0',
-    period: '/month',
-    desc: 'Complete access to job opportunities',
-    icon: Users,
-    features: ['Unlimited job applications', 'Profile management', 'Compliance tracking'],
-    btn: 'Join Free',
-    popular: false,
-    accent: 'from-emerald-500 to-teal-500',
-  },
-  {
-    name: 'Small Care Providers',
+    name: 'Starter',
     price: '£299',
     period: '/month',
-    desc: 'Perfect for care homes and small clinics',
+    tag: 'Perfect for small care homes getting started with compliance management.',
     icon: Building2,
-    features: ['Up to 50 staff members', 'Basic compliance tracking', 'Email support', 'Shift scheduling'],
-    btn: 'Start Trial',
+    features: [
+      'Automated compliance tracking (DBS, Right to Work, etc.)',
+      'Staff document management',
+      'Real-time compliance alerts',
+      'Basic workforce dashboard',
+    ],
+    btn: 'Start Free Trial',
     popular: false,
     accent: 'from-violet-500 to-purple-500',
   },
   {
-    name: 'Medium Providers',
+    name: 'Growth',
     price: '£699',
     period: '/month',
-    desc: 'Ideal for multi-site operations',
+    tag: 'Ideal for growing care providers managing multiple teams and shifts.',
     icon: Zap,
-    features: ['Up to 200 staff members', 'Advanced analytics', 'Priority support', 'Custom integrations'],
-    btn: 'Start Trial',
+    features: [
+      'Everything in Starter',
+      'Smart shift allocation to compliant staff',
+      'Automated notifications & reminders',
+      'Workforce visibility & reporting',
+    ],
+    btn: 'Book a Demo',
     popular: true,
     accent: 'from-blue-600 to-indigo-500',
   },
   {
-    name: 'Large NHS Trusts',
+    name: 'Professional',
+    price: '£1,500',
+    period: '/month',
+    tag: 'Built for multi-site care providers needing centralised control.',
+    icon: Globe,
+    features: [
+      'Everything in Growth',
+      'Multi-location management dashboard',
+      'Advanced compliance risk insights',
+      'Centralised workforce visibility',
+    ],
+    btn: 'Book a Demo',
+    popular: false,
+    accent: 'from-sky-500 to-blue-600',
+  },
+  {
+    name: 'Enterprise',
     price: 'Custom',
     period: ' pricing',
-    desc: 'Enterprise solutions for large trusts',
+    tag: 'Designed for large healthcare groups with multiple care home locations.',
     icon: Star,
-    features: ['Unlimited staff members', 'Dedicated account manager', '24/7 priority support', 'Custom development'],
+    features: [
+      'Scalable multi-site management',
+      'Organisation-wide compliance monitoring',
+      'Advanced analytics & reporting',
+      'Dedicated account support',
+    ],
+    scalingNote: 'Scalable pricing based on number of care homes',
     btn: 'Contact Sales',
     popular: false,
     accent: 'from-amber-500 to-orange-500',
@@ -54,9 +78,21 @@ const plans = [
 
 export default function PricingSection() {
   const { navigateTo } = useAppStore();
+  const [showBookDemo, setShowBookDemo] = useState(false);
+  const [showContactSales, setShowContactSales] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('');
+
+  const handlePlanClick = (planName: string, isEnterprise: boolean) => {
+    if (isEnterprise) {
+      setSelectedPlan(planName);
+      setShowContactSales(true);
+    } else {
+      setShowBookDemo(true);
+    }
+  };
 
   return (
-    <section className="py-[110px] relative overflow-hidden" style={{ background: '#F8FAFD' }}>
+    <section id="pricing" className="py-16 md:py-20 relative overflow-hidden" style={{ background: '#F8FAFD' }}>
       {/* Grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -79,22 +115,22 @@ export default function PricingSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55 }}
-          className="text-center max-w-[580px] mx-auto mb-16"
+          className="text-center max-w-[700px] mx-auto mb-12"
         >
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-[12px] font-semibold text-blue-700 mb-5">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-xs font-semibold text-blue-700 mb-4">
             Pricing
           </span>
-          <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-bold text-slate-900 tracking-[-0.025em] mb-4 leading-[1.15]">
-            Transparent Pricing for Every Healthcare Provider
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+            Simple, Transparent Pricing for Care Providers
           </h2>
-          <p className="text-[16px] text-slate-500 leading-[1.7]">
-            Choose the plan that fits your organization&apos;s needs
+          <p className="text-base md:text-lg text-slate-600 leading-relaxed">
+            Reduce agency costs and ensure workforce compliance — all in one platform.
           </p>
         </motion.div>
 
         {/* Pricing cards */}
         <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-5"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-20px' }}
@@ -108,43 +144,31 @@ export default function PricingSection() {
                 visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 200, damping: 20 } },
               }}
               whileHover={{
-                y: p.popular ? -10 : -6,
-                boxShadow: p.popular
-                  ? '0 28px 64px rgba(37,99,235,0.22)'
-                  : '0 16px 40px rgba(0,0,0,0.1)',
+                y: -6,
                 transition: { type: 'spring', stiffness: 300, damping: 18 },
               }}
               whileTap={{ scale: 0.98 }}
-              className={`group relative flex flex-col rounded-2xl overflow-hidden cursor-default ${
+              className={`group relative flex flex-col rounded-2xl overflow-hidden cursor-default h-full ${
                 p.popular
-                  ? 'border-2 border-blue-400/60 shadow-[0_0_0_4px_rgba(37,99,235,0.08),0_12px_40px_rgba(37,99,235,0.18)] bg-white'
+                  ? 'border-2 border-blue-300/70 bg-white shadow-[0_8px_30px_rgba(37,99,235,0.15)] ring-2 ring-blue-100/50'
                   : 'border border-slate-200/80 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]'
               }`}
             >
-              {/* Popular: animated shimmer top bar */}
-              {p.popular ? (
-                <div className="relative h-1 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500" />
-                  <motion.div
-                    animate={{ x: ['-100%', '200%'] }}
-                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                  />
-                </div>
-              ) : (
-                <div className="h-1 bg-transparent group-hover:bg-slate-100" />
-              )}
-
               <div className="p-6 flex-1 flex flex-col">
+                {/* Most Popular badge */}
                 {p.popular && (
                   <div className="mb-4">
-                    <motion.span
-                      animate={{ opacity: [0.85, 1, 0.85] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-flex items-center text-[10.5px] font-bold px-2.5 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full uppercase tracking-wider shadow-sm"
-                    >
-                      Most Popular
-                    </motion.span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white rounded-full shadow-lg shadow-blue-500/30 relative overflow-hidden">
+                      <motion.div
+                        animate={{ x: ['-100%', '200%'] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      />
+                      <Star className="w-3 h-3 fill-white relative z-10" />
+                      <span className="text-[10.5px] font-bold uppercase tracking-wider relative z-10">
+                        Most Popular
+                      </span>
+                    </div>
                   </div>
                 )}
 
@@ -157,16 +181,16 @@ export default function PricingSection() {
                   <p.icon className={`w-5 h-5 ${p.popular ? 'text-white' : 'text-slate-400'}`} />
                 </motion.div>
 
-                <h3 className="text-[14px] font-semibold text-slate-900 mb-1.5">{p.name}</h3>
-                <div className="flex items-baseline gap-1 mb-1.5">
+                <h3 className="text-[15px] font-bold text-slate-900 mb-1.5">{p.name}</h3>
+                <div className="flex items-baseline gap-1 mb-2">
                   <span className={`text-[28px] font-bold tracking-[-0.025em] ${p.popular ? 'text-blue-600' : 'text-slate-900'}`}>
                     {p.price}
                   </span>
                   <span className="text-[13px] text-slate-400">{p.period}</span>
                 </div>
-                <p className="text-[13px] text-slate-500 mb-5 leading-relaxed">{p.desc}</p>
+                <p className="text-[12.5px] text-slate-500 mb-5 leading-relaxed">{p.tag}</p>
 
-                <ul className="space-y-2.5 mb-7 flex-1">
+                <ul className="space-y-2.5 mb-5 flex-1">
                   {p.features.map((f, fi) => (
                     <motion.li
                       key={fi}
@@ -184,10 +208,14 @@ export default function PricingSection() {
                   ))}
                 </ul>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+                {'scalingNote' in p && p.scalingNote && (
+                  <p className="text-[11.5px] text-slate-400 italic mb-4">{p.scalingNote}</p>
+                )}
+
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="mt-auto">
                   <Button
-                    onClick={() => navigateTo('signup')}
-                    className={`w-full rounded-xl h-[44px] text-[13px] font-semibold mt-auto transition-all ${
+                    onClick={() => handlePlanClick(p.name, p.name === 'Enterprise')}
+                    className={`w-full rounded-xl h-[44px] text-[13px] font-semibold transition-all ${
                       p.popular
                         ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_2px_8px_rgba(37,99,235,0.3)] hover:shadow-[0_4px_16px_rgba(37,99,235,0.4)]'
                         : 'bg-slate-900 hover:bg-slate-800 text-white'
@@ -199,12 +227,23 @@ export default function PricingSection() {
                 </motion.div>
               </div>
 
-              {/* Bottom accent line — always visible on mobile, hover-animated on desktop */}
+              {/* Bottom accent line */}
               <div className={`absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r ${p.accent} scale-x-100 md:scale-x-0 md:group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
             </motion.div>
           ))}
         </motion.div>
       </div>
+
+      {/* Dialogs */}
+      <BookDemoDialog open={showBookDemo} onClose={() => setShowBookDemo(false)} />
+      <ContactSalesDialog 
+        open={showContactSales} 
+        onClose={() => {
+          setShowContactSales(false);
+          setSelectedPlan('');
+        }}
+        planName={selectedPlan}
+      />
     </section>
   );
 }

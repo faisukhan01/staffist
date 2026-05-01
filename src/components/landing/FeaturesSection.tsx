@@ -54,7 +54,7 @@ const cardVariant = {
 
 export default function FeaturesSection() {
   return (
-    <section className="py-[110px] bg-white relative overflow-hidden">
+    <section id="features" className="py-16 md:py-20 bg-white relative overflow-hidden">
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(37,99,235,0.05) 0%, transparent 65%)' }}
@@ -67,21 +67,21 @@ export default function FeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center max-w-[600px] mx-auto mb-16"
+          className="text-center max-w-[700px] mx-auto mb-12"
         >
           <motion.span
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-[12px] font-semibold text-blue-700 mb-5"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-xs font-semibold text-blue-700 mb-4"
           >
             Why Staffist
           </motion.span>
-          <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-bold text-slate-900 tracking-[-0.025em] mb-4 leading-[1.15]">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
             Intelligent Healthcare Staffing Solutions
           </h2>
-          <p className="text-[16px] text-slate-500 leading-[1.7]">
+          <p className="text-base md:text-lg text-slate-600 leading-relaxed">
             Advanced AI technology meets regulatory compliance for seamless healthcare staffing
           </p>
         </motion.div>

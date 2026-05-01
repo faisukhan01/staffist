@@ -7,6 +7,7 @@ import { useAppStore } from '@/store/useAppStore';
 
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
+import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
@@ -71,6 +72,7 @@ export default function Home() {
         <Navbar />
         <main className="flex-1">
           <HeroSection />
+          <HowItWorksSection />
           <FeaturesSection />
           <PricingSection />
           <CTASection />
@@ -107,6 +109,7 @@ export default function Home() {
           <Navbar />
           <main className="flex-1">
             <HeroSection />
+            <HowItWorksSection />
             <FeaturesSection />
             <PricingSection />
             <CTASection />

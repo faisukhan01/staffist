@@ -39,7 +39,9 @@ import {
   CheckCircle2,
   Timer,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
+import { AssignStaffDialog, ViewCandidateDialog } from "@/components/admin/dialogs/admin-dialogs";
 
 /* ═══════════════════════════════════════════════════════════════
    Data
@@ -210,8 +212,8 @@ function CandidateCard({
 }: {
   candidate: (typeof candidates)[number];
   index: number;
-  onAssign: (name: string) => void;
-  onView: (name: string) => void;
+  onAssign: () => void;
+  onView: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const isVerified = candidate.compliance === "Verified";
@@ -309,7 +311,7 @@ function CandidateCard({
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              onAssign(candidate.name);
+              onAssign();
             }}
             className="h-7 text-[11px] font-medium bg-blue-600 hover:bg-blue-700 text-white px-3 rounded-lg shadow-sm shadow-blue-500/15 hover:shadow-md hover:shadow-blue-500/20 transition-all duration-200"
           >
@@ -321,7 +323,7 @@ function CandidateCard({
             variant="outline"
             onClick={(e) => {
               e.stopPropagation();
-              onView(candidate.name);
+              onView();
             }}
             className="h-7 text-[11px] text-muted-foreground hover:text-foreground px-2 rounded-lg border-border/50 hover:border-border transition-colors"
           >
@@ -342,25 +344,24 @@ export function AdminStaffRequestsPage() {
   const { toast } = useToast();
   const [showMatching] = useState(true);
   const [isMatching] = useState(false);
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<typeof candidates[0] | null>(null);
 
   const handleAssign = useCallback(
-    (name: string) => {
-      toast({
-        title: "Candidate Assigned",
-        description: `${name} has been successfully assigned to the shift.`,
-      });
+    (candidate: typeof candidates[0]) => {
+      setSelectedCandidate(candidate);
+      setShowAssignDialog(true);
     },
-    [toast]
+    []
   );
 
   const handleView = useCallback(
-    (name: string) => {
-      toast({
-        title: "Opening profile...",
-        description: `Viewing full profile for ${name}`,
-      });
+    (candidate: typeof candidates[0]) => {
+      setSelectedCandidate(candidate);
+      setShowViewDialog(true);
     },
-    [toast]
+    []
   );
 
   return (
@@ -602,8 +603,8 @@ export function AdminStaffRequestsPage() {
                       key={i}
                       candidate={candidate}
                       index={i}
-                      onAssign={handleAssign}
-                      onView={handleView}
+                      onAssign={() => handleAssign(candidate)}
+                      onView={() => handleView(candidate)}
                     />
                   ))}
                 </div>
@@ -659,6 +660,30 @@ export function AdminStaffRequestsPage() {
           )}
         </Card>
       </div>
+      
+      {/* Dialogs */}
+      {selectedCandidate && (
+        <>
+          <AssignStaffDialog
+            open={showAssignDialog}
+            onClose={() => {
+              setShowAssignDialog(false);
+              setSelectedCandidate(null);
+            }}
+            candidateName={selectedCandidate.name}
+            candidateQualification={selectedCandidate.qualification}
+            candidateRating={selectedCandidate.rating}
+          />
+          <ViewCandidateDialog
+            open={showViewDialog}
+            onClose={() => {
+              setShowViewDialog(false);
+              setSelectedCandidate(null);
+            }}
+            candidateName={selectedCandidate.name}
+          />
+        </>
+      )}
     </div>
   );
 }

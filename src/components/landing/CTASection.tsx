@@ -1,15 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, Sparkles } from 'lucide-react';
+import { BookDemoDialog } from '@/components/dialogs/BookDemoDialog';
+import { JoinPilotDialog } from '@/components/dialogs/JoinPilotDialog';
 
 export default function CTASection() {
   const { navigateTo } = useAppStore();
+  const [showBookDemo, setShowBookDemo] = useState(false);
+  const [showJoinPilot, setShowJoinPilot] = useState(false);
 
   return (
-    <section className="py-[110px] bg-white">
+    <section className="py-16 md:py-20 bg-white">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -40,35 +45,36 @@ export default function CTASection() {
             className="absolute bottom-[-80px] left-[-60px] w-[400px] h-[400px] bg-indigo-200/30 rounded-full blur-[80px] pointer-events-none"
           />
 
-          <div className="relative z-10 max-w-[640px] mx-auto text-center">
+          <div className="relative z-10 max-w-[700px] mx-auto text-center">
             {/* Pill */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600/10 border border-blue-200 rounded-full text-[12px] font-semibold text-blue-700 mb-6"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600/10 border border-blue-200 rounded-full text-xs font-semibold text-blue-700 mb-5"
             >
               <Sparkles className="w-3 h-3 text-blue-500" />
               Join 2,500+ healthcare professionals
             </motion.div>
 
-            <h2 className="text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold text-slate-900 mb-5 tracking-[-0.025em] leading-[1.15]">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-5 leading-tight">
               Ready to Transform Your Healthcare Staffing?
             </h2>
-            <p className="text-[16px] text-slate-500 mb-10 leading-[1.72] max-w-[520px] mx-auto">
+            <p className="text-base md:text-lg text-slate-600 mb-10 leading-relaxed max-w-[600px] mx-auto">
               Join thousands of healthcare professionals and providers using Staffist for ethical, efficient staffing solutions.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
-                onClick={() => navigateTo('signup')}
+                onClick={() => setShowJoinPilot(true)}
                 className="group bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-[11px] px-8 h-[50px] text-[14px] shadow-[0_4px_20px_rgba(37,99,235,0.3)] hover:shadow-[0_8px_28px_rgba(37,99,235,0.4)] transition-all"
               >
                 Start Free Trial
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button
+                onClick={() => setShowBookDemo(true)}
                 variant="outline"
                 className="border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 rounded-[11px] px-8 h-[50px] text-[14px] font-semibold transition-all bg-white"
               >
@@ -79,6 +85,10 @@ export default function CTASection() {
           </div>
         </motion.div>
       </div>
+
+      {/* Dialogs */}
+      <BookDemoDialog open={showBookDemo} onClose={() => setShowBookDemo(false)} />
+      <JoinPilotDialog open={showJoinPilot} onClose={() => setShowJoinPilot(false)} />
     </section>
   );
 }

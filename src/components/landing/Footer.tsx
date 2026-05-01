@@ -1,10 +1,25 @@
 'use client';
 
+import { useState } from 'react';
+import { InfoDialog } from '@/components/dialogs/InfoDialog';
+
 export default function Footer() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'privacy' | 'terms' | 'cookies' | 'help'>('privacy');
+
+  const handleLinkClick = (type: 'privacy' | 'terms' | 'cookies' | 'help') => {
+    setDialogType(type);
+    setDialogOpen(true);
+  };
+
   const cols = {
     Platform: ['For Providers', 'For Professionals', 'Compliance'],
     Company: ['About', 'Careers', 'Contact'],
-    Support: ['Help Center', 'Privacy Policy', 'Terms of Service'],
+    Support: [
+      { label: 'Help Center', action: () => handleLinkClick('help') },
+      { label: 'Privacy Policy', action: () => handleLinkClick('privacy') },
+      { label: 'Terms of Service', action: () => handleLinkClick('terms') },
+    ],
   };
 
   return (
@@ -31,11 +46,22 @@ export default function Footer() {
             <div key={title}>
               <h4 className="text-[13px] font-semibold text-white mb-4">{title}</h4>
               <ul className="space-y-2.5">
-                {links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-[13px] text-[#64748B] hover:text-white transition-colors">{l}</a>
-                  </li>
-                ))}
+                {links.map((l) => {
+                  const isObject = typeof l === 'object';
+                  const label = isObject ? l.label : l;
+                  const action = isObject ? l.action : undefined;
+                  
+                  return (
+                    <li key={label}>
+                      <button
+                        onClick={action}
+                        className="text-[13px] text-[#64748B] hover:text-white transition-colors text-left"
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -43,12 +69,25 @@ export default function Footer() {
         <div className="mt-14 pt-8 border-t border-[#1E293B] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[12px] text-[#475569]">&copy; 2026 Staffist. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            {['Privacy', 'Terms', 'Cookies'].map((l) => (
-              <a key={l} href="#" className="text-[12px] text-[#475569] hover:text-[#94A3B8] transition-colors">{l}</a>
+            {[
+              { label: 'Privacy', action: () => handleLinkClick('privacy') },
+              { label: 'Terms', action: () => handleLinkClick('terms') },
+              { label: 'Cookies', action: () => handleLinkClick('cookies') },
+            ].map((l) => (
+              <button
+                key={l.label}
+                onClick={l.action}
+                className="text-[12px] text-[#475569] hover:text-[#94A3B8] transition-colors"
+              >
+                {l.label}
+              </button>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Info Dialog */}
+      <InfoDialog open={dialogOpen} onClose={() => setDialogOpen(false)} type={dialogType} />
     </footer>
   );
 }

@@ -9,22 +9,28 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/store/useAppStore';
 import Image from 'next/image';
+import { ApplyShiftDialog } from '@/components/dialogs/ApplyShiftDialog';
+
+const CARE_HOME = {
+  name: 'Sunrise Care Home',
+  location: 'Manchester, M14 6HR',
+};
 
 const complianceItems = [
-  { title: 'DBS Check',        status: 'Valid',              detail: 'Enhanced DBS',   ok: true  },
-  { title: 'Right to Work',    status: 'Valid',              detail: 'Until Dec 2025', ok: true  },
-  { title: 'Visa Status',      status: 'Expires in 32 days', detail: 'Tier 2 Visa',    ok: false },
-  { title: 'NMC Registration', status: 'Valid',              detail: 'Until Mar 2025', ok: true  },
+  { title: 'DBS Check',            status: 'Valid',              detail: 'Enhanced DBS',      ok: true  },
+  { title: 'Right to Work',        status: 'Valid',              detail: 'Until Dec 2025',    ok: true  },
+  { title: 'Manual Handling Cert', status: 'Expires in 32 days', detail: 'Renewal due soon',  ok: false },
+  { title: 'First Aid Certificate', status: 'Valid',             detail: 'Until Mar 2026',    ok: true  },
 ];
 
 const upcomingShifts = [
-  { hospital: "St. Mary's Hospital",   dept: 'ICU Department',       date: 'March 15, 2024', time: '07:00 – 19:00', status: 'Confirmed' as const },
-  { hospital: 'Royal London Hospital', dept: 'Emergency Department', date: 'March 18, 2024', time: '19:00 – 07:00', status: 'Pending'   as const },
+  { dept: 'Dementia Unit',    role: 'Care Assistant', date: 'Apr 25, 2025', time: '07:00 – 19:00', status: 'Confirmed' as const },
+  { dept: 'General Care',     role: 'Care Assistant', date: 'Apr 28, 2025', time: '19:00 – 07:00', status: 'Pending'   as const },
 ];
 
 const availableShifts = [
-  { hospital: "King's College Hospital", dept: 'ICU · Night Shift',       rate: '£32/hr', date: 'March 20, 2024', time: '19:00 – 07:00' },
-  { hospital: "Guy's Hospital",          dept: 'Cardiac Unit · Day Shift', rate: '£28/hr', date: 'March 22, 2024', time: '07:00 – 19:00' },
+  { dept: 'Memory Care',  role: 'Senior Carer',   rate: '£15.00/hr', date: 'Thu, 1 May',  time: '07:00 – 19:00' },
+  { dept: 'Nursing Wing', role: 'Care Assistant', rate: '£14.00/hr', date: 'Sat, 3 May',  time: '22:00 – 07:00' },
 ];
 
 
@@ -46,6 +52,13 @@ const fadeUp = (delay = 0) => ({
 export default function DashboardContent() {
   const { setSidebarTab, setSidebarOpen } = useAppStore();
   const [available, setAvailable] = useState(true);
+  const [showApplyShift, setShowApplyShift] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<typeof availableShifts[0] | null>(null);
+
+  const handleApplyShift = (shift: typeof availableShifts[0]) => {
+    setSelectedShift(shift);
+    setShowApplyShift(true);
+  };
 
   return (
     <div className="flex-1 min-h-screen bg-[#F0F4FF]">
@@ -91,8 +104,8 @@ export default function DashboardContent() {
               </div>
               <div>
                 <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">Sarah Johnson</h2>
-                <p className="text-blue-200 text-sm mt-0.5">Registered Nurse · ICU Specialist</p>
-                <p className="text-blue-300 text-xs mt-0.5">London, United Kingdom</p>
+                <p className="text-blue-200 text-sm mt-0.5">Senior Care Assistant · Dementia Unit</p>
+                <p className="text-blue-300 text-xs mt-0.5">{CARE_HOME.name} · Manchester</p>
                 <div className="flex items-center gap-1.5 mt-2">
                   {[1,2,3,4].map(i => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
                   <Star className="w-3.5 h-3.5 fill-yellow-400/30 text-yellow-400/50" />
@@ -172,8 +185,8 @@ export default function DashboardContent() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{s.hospital}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{s.dept}</p>
+                      <p className="text-sm font-semibold text-slate-900">{s.dept}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{s.role} · {CARE_HOME.name}</p>
                     </div>
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg shrink-0 ${
                       s.status === 'Confirmed' ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-amber-700 bg-amber-50 border border-amber-200'
@@ -213,8 +226,8 @@ export default function DashboardContent() {
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-900">{s.hospital}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{s.dept}</p>
+                      <p className="text-sm font-semibold text-slate-900">{s.dept}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{s.role} · {CARE_HOME.name}</p>
                     </div>
                     <p className="text-xl font-bold text-blue-600 shrink-0">{s.rate}</p>
                   </div>
@@ -229,7 +242,7 @@ export default function DashboardContent() {
                     </div>
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                       <Button
-                        onClick={() => setSidebarTab('shifts')}
+                        onClick={() => handleApplyShift(s)}
                         className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold px-4 h-8 shrink-0 transition-colors"
                       >
                         Apply
@@ -244,6 +257,19 @@ export default function DashboardContent() {
 
         </div>
       </div>
+
+      {/* Dialogs */}
+      <ApplyShiftDialog 
+        open={showApplyShift} 
+        onClose={() => {
+          setShowApplyShift(false);
+          setSelectedShift(null);
+        }}
+        shift={selectedShift ? {
+          ...selectedShift,
+          location: CARE_HOME.name + ' · ' + CARE_HOME.location
+        } : null}
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar,
 } from "recharts";
+import { ApproveShiftDialog, DeclineShiftDialog } from "@/components/admin/dialogs/admin-dialogs";
 
 /* ── Animated Counter ── */
 function useAnimatedCounter(target: number, duration = 800) {
@@ -140,14 +141,28 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 /* ── Main Dashboard ── */
 export function AdminDashboardPage() {
   const { toast } = useToast();
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<typeof pendingApprovals[0] | null>(null);
+  const [timeRange, setTimeRange] = useState<"week" | "month">("week");
 
-  const handleApprove = useCallback((title: string) => {
-    toast({ title: "Approved", description: `${title} has been approved.` });
-  }, [toast]);
+  const handleApprove = useCallback((shift: typeof pendingApprovals[0]) => {
+    setSelectedShift(shift);
+    setShowApproveDialog(true);
+  }, []);
 
-  const handleReject = useCallback((title: string) => {
-    toast({ title: "Declined", description: `${title} has been declined.`, variant: "destructive" });
-  }, [toast]);
+  const handleReject = useCallback((shift: typeof pendingApprovals[0]) => {
+    setSelectedShift(shift);
+    setShowDeclineDialog(true);
+  }, []);
+
+  const handleTimeRangeChange = (range: "week" | "month") => {
+    setTimeRange(range);
+    toast({
+      title: `Viewing ${range === "week" ? "This Week" : "This Month"}`,
+      description: `Dashboard data updated to show ${range === "week" ? "weekly" : "monthly"} metrics.`,
+    });
+  };
 
   return (
     <div className="p-5 sm:p-6 lg:p-8 space-y-6">
@@ -160,8 +175,30 @@ export function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="text-[12px] h-8 rounded-lg bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:text-white shadow-sm shadow-blue-500/20">This Week</Button>
-          <Button variant="outline" size="sm" className="text-[12px] h-8 rounded-lg border-border/50 text-muted-foreground hover:text-foreground">This Month</Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleTimeRangeChange("week")}
+            className={`text-[12px] h-8 rounded-lg ${
+              timeRange === "week" 
+                ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:text-white shadow-sm shadow-blue-500/20" 
+                : "border-border/50 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            This Week
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleTimeRangeChange("month")}
+            className={`text-[12px] h-8 rounded-lg ${
+              timeRange === "month" 
+                ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:text-white shadow-sm shadow-blue-500/20" 
+                : "border-border/50 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            This Month
+          </Button>
         </div>
       </div>
 
@@ -239,11 +276,11 @@ export function AdminDashboardPage() {
                   <p className="text-[13px] font-medium text-foreground leading-snug">{item.title}</p>
                   <p className="text-[11px] text-muted-foreground mt-1">{item.requestedBy} · {item.detail}</p>
                   <div className="flex items-center gap-2 mt-2.5">
-                    <Button size="sm" onClick={() => handleApprove(item.title)}
+                    <Button size="sm" onClick={() => handleApprove(item)}
                       className="h-7 text-[11px] bg-blue-600 hover:bg-blue-700 text-white px-3 font-medium rounded-lg shadow-sm shadow-blue-500/15">
                       Approve
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleReject(item.title)}
+                    <Button size="sm" variant="outline" onClick={() => handleReject(item)}
                       className="h-7 text-[11px] text-muted-foreground px-3 rounded-lg border-border/50 hover:text-foreground">
                       Decline
                     </Button>
@@ -432,6 +469,30 @@ export function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Dialogs */}
+      {selectedShift && (
+        <>
+          <ApproveShiftDialog
+            open={showApproveDialog}
+            onClose={() => {
+              setShowApproveDialog(false);
+              setSelectedShift(null);
+            }}
+            shiftTitle={selectedShift.title}
+            requestedBy={selectedShift.requestedBy}
+            detail={selectedShift.detail}
+          />
+          <DeclineShiftDialog
+            open={showDeclineDialog}
+            onClose={() => {
+              setShowDeclineDialog(false);
+              setSelectedShift(null);
+            }}
+            shiftTitle={selectedShift.title}
+          />
+        </>
+      )}
     </div>
   );
 }

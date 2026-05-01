@@ -17,7 +17,7 @@ export function Footer() {
               <span className="text-[11px] text-muted-foreground">AI-Powered Healthcare Staffing</span>
             </div>
           </div>
-
+ 
           <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
             <span>© 2026 Staffist</span>
             <div className="hidden sm:flex items-center gap-1">
