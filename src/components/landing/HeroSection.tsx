@@ -73,7 +73,7 @@ export default function HeroSection() {
   const [showJoinPilot, setShowJoinPilot] = useState(false);
 
   return (
-    <section className="relative pt-24 md:pt-28 pb-12 md:pb-16 overflow-hidden bg-gradient-to-b from-white via-slate-50/30 to-white">
+    <section className="relative pt-28 md:pt-32 pb-12 md:pb-16 overflow-hidden bg-gradient-to-b from-white via-slate-50/30 to-white">
 
       {/* ── Background layers ── */}
       <div className="absolute inset-0 pointer-events-none">
@@ -104,107 +104,122 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto">
 
-          {/* ── Content ── */}
-          <div className="text-center">
+          {/* ── Centered Content ── */}
+          <div className="text-center mb-8">
             {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/70 rounded-full text-xs sm:text-sm font-semibold text-blue-700 mb-6 md:mb-7 shadow-sm hover:shadow-md transition-shadow"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/70 rounded-full text-xs font-semibold text-blue-700 mb-4 shadow-sm hover:shadow-md transition-shadow"
             >
-              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="hidden sm:inline">Compliance-First Workforce Platform for UK Care Providers</span>
-              <span className="sm:hidden">UK Care Workforce Platform</span>
+              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+              <span>Compliance-First Workforce Platform for UK Care Providers</span>
             </motion.div>
 
-            {/* Headline */}
+            {/* Headline - Much Smaller */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.65 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900 mb-4 md:mb-5 px-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-900 mb-4 px-4"
             >
               Reduce Agency Costs &amp;{' '}
               <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
                 Ensure 100% Workforce Compliance
-              </span>{' '}
-              <span className="block mt-1.5">— in one platform.</span>
+              </span>
+              <span className="block mt-1.5">in one platform.</span>
             </motion.h1>
 
-            {/* Subtitle */}
+            {/* Professional Healthcare Image - Smaller */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.7 }}
+              className="relative max-w-2xl mx-auto mb-5"
+            >
+              <div className="relative rounded-lg overflow-hidden shadow-lg border border-slate-200/50 bg-white">
+                <Image
+                  src="/hero-healthcare.png"
+                  alt="Healthcare professionals using Staffist platform"
+                  width={700}
+                  height={400}
+                  className="w-full h-auto object-cover"
+                  priority
+                />
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/5 via-transparent to-indigo-600/5 pointer-events-none" />
+              </div>
+              
+              {/* Floating badge - 100% Compliant - Smaller */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.5, type: "spring" }}
+                className="absolute bottom-3 left-3 bg-white rounded-md shadow-lg border border-slate-200/60 px-2.5 py-1.5 flex items-center gap-2"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-900 leading-tight">100% Compliant</p>
+                  <p className="text-[9px] text-slate-600">Real-time tracking</p>
+                </div>
+              </motion.div>
+
+              {/* Floating stat badge - 40% Savings - Smaller */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, duration: 0.5, type: "spring" }}
+                className="absolute top-3 right-3 bg-white rounded-md shadow-lg border border-slate-200/60 px-2.5 py-1.5 flex items-center gap-2"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                  <TrendingDown className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-900 leading-tight">40% Savings</p>
+                  <p className="text-[9px] text-slate-600">On agency costs</p>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Subtitle - Smaller and Concise */}
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-base sm:text-lg md:text-xl leading-relaxed text-slate-600 max-w-3xl mx-auto mb-7 md:mb-9 px-4"
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-sm md:text-base leading-relaxed text-slate-600 max-w-xl mx-auto mb-5 px-4"
             >
-              Staffist automates compliance tracking, allocates shifts only to eligible staff, and eliminates costly agency dependency — purpose-built for UK care providers.
+              Automate compliance tracking, allocate shifts to eligible staff only, and eliminate costly agency dependency.
             </motion.p>
 
-            {/* CTAs */}
+            {/* CTAs - Smaller */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-10 md:mb-12 justify-center px-4"
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="flex flex-col sm:flex-row gap-3 justify-center"
             >
               <Button
                 onClick={() => setShowBookDemo(true)}
-                className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 md:px-8 h-11 md:h-12 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg px-6 h-10 text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 <span className="relative flex items-center justify-center gap-2">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5" />
+                  <Calendar className="w-4 h-4" />
                   Book a Demo
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
 
               <Button
                 onClick={() => setShowJoinPilot(true)}
                 variant="outline"
-                className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 rounded-xl px-6 md:px-8 h-11 md:h-12 text-sm md:text-base font-semibold transition-all"
+                className="border-2 border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 rounded-lg px-6 h-10 text-sm font-semibold transition-all"
               >
                 Join Pilot Programme
-                <ArrowRight className="w-4 h-4 ml-2 text-blue-600" />
+                <ArrowRight className="w-3.5 h-3.5 ml-2 text-blue-600" />
               </Button>
-            </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 max-w-6xl mx-auto px-4 mb-12 md:mb-16"
-            >
-              {heroStats.map((s, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                >
-                  <AnimatedStat value={s.value} label={s.label} />
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Trust badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.5 }}
-              className="flex flex-wrap items-center justify-center gap-4 md:gap-6 max-w-3xl mx-auto px-4"
-            >
-              {trustBadges.map(({ icon: Icon, label, color }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2 text-slate-600 text-xs md:text-sm font-medium"
-                >
-                  <Icon className={`w-4 h-4 ${color}`} />
-                  <span>{label}</span>
-                </div>
-              ))}
             </motion.div>
           </div>
 

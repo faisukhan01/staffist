@@ -91,9 +91,9 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
             </AnimatedDialogHeader>
 
             <form onSubmit={handleSubmit}>
-              <AnimatedDialogContent className="space-y-4 py-4">
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
+              <AnimatedDialogContent className="space-y-3 py-3">
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
                     <Label htmlFor="name" className="text-sm font-medium">
                       Full Name *
                     </Label>
@@ -105,13 +105,13 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="John Smith"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="email" className="text-sm font-medium">
                       Work Email *
                     </Label>
@@ -124,13 +124,13 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="john@carehome.com"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="phone" className="text-sm font-medium">
                       Phone Number
                     </Label>
@@ -143,12 +143,12 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+44 20 1234 5678"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="organization" className="text-sm font-medium">
                       Organization *
                     </Label>
@@ -160,7 +160,7 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
                         value={formData.organization}
                         onChange={handleChange}
                         placeholder="Care Home Name"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
@@ -168,7 +168,7 @@ export function BookDemoDialog({ open, onClose }: BookDemoDialogProps) {
                 </div>
 
                 <div className="p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-100/50 dark:border-blue-900/30">
-                  <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                  <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-600" />
                       <span>30-min personalized walkthrough</span>

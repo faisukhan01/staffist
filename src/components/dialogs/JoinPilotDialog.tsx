@@ -91,19 +91,19 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
             </AnimatedDialogHeader>
 
             <form onSubmit={handleSubmit}>
-              <AnimatedDialogContent className="space-y-4 py-4">
+              <AnimatedDialogContent className="space-y-3 py-3">
                 <div className="p-3 bg-gradient-to-br from-violet-50/50 to-purple-50/50 dark:from-violet-950/20 dark:to-purple-950/20 rounded-lg border border-violet-100/50 dark:border-violet-900/30">
-                  <p className="text-xs font-semibold text-violet-900 dark:text-violet-300 mb-2">
+                  <p className="text-xs font-semibold text-violet-900 dark:text-violet-300 mb-1.5">
                     Pilot Benefits:
                   </p>
-                  <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                  <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-600" />
-                      <span>50% discount for first 6 months</span>
+                      <span>1 month free trial + 50% off for 6 months</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-600" />
-                      <span>Priority support & account manager</span>
+                      <span>Priority support & dedicated account manager</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-600" />
@@ -112,8 +112,8 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
                   </ul>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
                     <Label htmlFor="pilot-name" className="text-sm font-medium">
                       Full Name *
                     </Label>
@@ -125,13 +125,13 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="John Smith"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="pilot-email" className="text-sm font-medium">
                       Work Email *
                     </Label>
@@ -144,13 +144,13 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="john@carehome.com"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="pilot-organization" className="text-sm font-medium">
                       Organization *
                     </Label>
@@ -162,13 +162,13 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
                         value={formData.organization}
                         onChange={handleChange}
                         placeholder="Care Home / NHS Trust"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label htmlFor="pilot-location" className="text-sm font-medium">
                       Location *
                     </Label>
@@ -180,7 +180,7 @@ export function JoinPilotDialog({ open, onClose }: JoinPilotDialogProps) {
                         value={formData.location}
                         onChange={handleChange}
                         placeholder="London, UK"
-                        className="pl-10 h-10"
+                        className="pl-10 h-9"
                         required
                       />
                     </div>

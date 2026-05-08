@@ -486,14 +486,10 @@ function LoginForm({ onToggle, onSignIn, onRoleChange }: LoginFormProps) {
         </div>
       </form>
       <div className="mt-5 sm:mt-6 text-center slide-up slide-up-delay-5">
-        <p className="text-sm text-gray-400">
-          Don&apos;t have an account?{' '}
-          <button type="button" onClick={onToggle} className="text-[#667eea] hover:text-[#764ba2] font-semibold transition-colors">Sign Up</button>
-        </p>
         <button
           type="button"
           onClick={() => navigateTo('landing')}
-          className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600 transition-colors mt-3"
+          className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600 transition-colors"
         >
           <ArrowLeft size={13} />
           Back to Home
@@ -646,24 +642,9 @@ function SignupForm({ onToggle }: SignupFormProps) {
 // ==================== Main Animated Login Page ====================
 
 export default function AnimatedLoginPage() {
-  const [isFlipped, setIsFlipped] = useState(false);
   const [loginRole, setLoginRole] = useState<'user' | 'admin'>('user');
   const { signIn } = useAppStore();
   const loginRoleRef = useRef<'user' | 'admin'>('user');
-  const frontRef = useRef<HTMLDivElement>(null);
-  const backRef = useRef<HTMLDivElement>(null);
-
-  const handleToggle = useCallback(() => {
-    setIsFlipped((prev) => {
-      const next = !prev;
-      // Scroll the face that is about to become visible back to top
-      setTimeout(() => {
-        if (next) backRef.current?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-        else frontRef.current?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-      }, 50);
-      return next;
-    });
-  }, []);
 
   const handleRoleChange = useCallback((r: 'user' | 'admin') => {
     setLoginRole(r);
@@ -685,26 +666,14 @@ export default function AnimatedLoginPage() {
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-        className="flip-container relative z-10 w-full"
+        className="relative z-10 w-full max-w-4xl"
       >
-        <div className={`flip-card ${isFlipped ? 'flipped' : ''}`} style={{ minHeight: '640px' }}>
-          {/* Front Face - Login */}
-          <div className="flip-face flex flex-col md:flex-row rounded-2xl shadow-2xl shadow-black/30 overflow-hidden bg-white">
-            <div className="w-full md:w-[42%] flex-shrink-0">
-              <CoverPanel type="login" role={loginRole} />
-            </div>
-            <div ref={frontRef} className="w-full md:w-[58%] min-w-0 overflow-y-auto">
-              <LoginForm onToggle={handleToggle} onSignIn={handleSignIn} onRoleChange={handleRoleChange} />
-            </div>
+        <div className="flex flex-col md:flex-row rounded-2xl shadow-2xl shadow-black/30 overflow-hidden bg-white">
+          <div className="w-full md:w-[42%] flex-shrink-0">
+            <CoverPanel type="login" role={loginRole} />
           </div>
-          {/* Back Face - Signup */}
-          <div className="flip-face flip-face-back flex flex-col md:flex-row rounded-2xl shadow-2xl shadow-black/30 overflow-hidden bg-white">
-            <div ref={backRef} className="w-full md:w-[58%] min-w-0 order-2 md:order-1 overflow-y-auto">
-              <SignupForm onToggle={handleToggle} />
-            </div>
-            <div className="w-full md:w-[42%] flex-shrink-0 order-1 md:order-2">
-              <CoverPanel type="signup" />
-            </div>
+          <div className="w-full md:w-[58%] min-w-0 overflow-y-auto">
+            <LoginForm onToggle={() => {}} onSignIn={handleSignIn} onRoleChange={handleRoleChange} />
           </div>
         </div>
       </motion.div>
